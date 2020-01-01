@@ -1,24 +1,24 @@
 <template>
   <div>
     <ul>
-      <li></li>
+      <li v-for="img in images">
+        <img v-lazy="img.src" />
+      </li>
     </ul>
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from "vue";
 import VueLazyload from "vue-lazyload";
 
 Vue.use(VueLazyload);
 
 export default {
+  data: () => ({
+    images: []
+  }),
   created: function() {
-    this.firebaseConfig = {
-      apiKey: "AIzaSyD3MntPmTPd2SVEzhq_zenEELe68HbO-DA",
-      storageBucket: "gs://active-learning-gui.appspot.com"
-    };
-    this.firebase.initializeApp(firebaseConfig);
-    this.storage = firebase.storage();
   }
 };
 </script>
