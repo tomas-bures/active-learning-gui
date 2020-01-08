@@ -1,7 +1,7 @@
 <template>
   <div>
     <ul>
-      <li v-for="img in images">
+      <li v-bind:key="img" v-for="img in images">
         <img v-lazy="img.src" />
       </li>
     </ul>
@@ -11,15 +11,14 @@
 <script lang="ts">
 import Vue from "vue";
 import VueLazyload from "vue-lazyload";
+import { FirebaseStorage } from "../firebase/storage";
 
 Vue.use(VueLazyload);
 
 export default {
   data: () => ({
-    images: []
-  }),
-  created: function() {
-  }
+    images: new Array<String>()
+  })
 };
 </script>
 
