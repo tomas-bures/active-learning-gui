@@ -2,12 +2,15 @@
   <nav>
     <v-app-bar flat dark app clipped-left>
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
-      <v-toobar-title class="text-uppercase">
+      <v-toolbar-title class="text-uppercase">
         <span>Application</span>
-      </v-toobar-title>
+      </v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn icon>
-        <v-icon class="white--text">layers</v-icon>
+        <v-icon class="white--text">person</v-icon>
+      </v-btn>
+      <v-btn icon>
+        <v-icon class="white--text">exit_to_app</v-icon>
       </v-btn>
     </v-app-bar>
     <v-navigation-drawer v-model="drawer" app clipped dark>
@@ -37,7 +40,7 @@ export default {
     links: [
       { icon: "dashboard", text: "Dashboard", route: "/" },
       { icon: "folder", text: "My Projects", route: "/projects" },
-      { icon: "person", text: "Team", route: "/team" }
+      { icon: "picture_in_picture", text: "Images", route: "/dataset" }
     ]
   })
 };
