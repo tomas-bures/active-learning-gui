@@ -2,6 +2,7 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 import Dashboard from "../views/Dashboard.vue";
 import Dataset from "../views/Dataset.vue";
+import Projects from "../views/Projects.vue";
 
 Vue.use(VueRouter);
 
@@ -15,6 +16,11 @@ const routes = [
     path: "/dataset",
     name: "dataset",
     component: Dataset
+  },
+  {
+    path: "/projects",
+    name: "projects",
+    component: Projects
   }
 ];
 
