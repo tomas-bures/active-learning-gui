@@ -3,7 +3,7 @@
     <v-app-bar flat dark app clipped-left>
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title class="text-uppercase">
-        <span>Application</span>
+        <span>Active learning gui</span>
       </v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn icon>
