@@ -27,7 +27,8 @@ export default {
   data: () => ({
     images: new Array<String>(),
     size: 350
-  })
+  }),
+  mounted() {}
 };
 </script>
 
