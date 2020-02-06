@@ -7,9 +7,12 @@
   </v-app>
 </template>
 
-<script lang="ts">
+<script>
 import Vue from "vue";
 import Navbar from "@/components/Navbar.vue";
+import infiniteScroll from "vue-infinite-scroll";
+
+Vue.use(infiniteScroll);
 
 export default Vue.extend({
   name: "App",

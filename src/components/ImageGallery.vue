@@ -3,15 +3,17 @@
     <h1>Images</h1>
     <v-slider v-model="size" min="100" max="1100" thumb-label="always"></v-slider>
     <v-container class="my-5">
-      <v-layout row md5 justify-space-around>
-        <v-flex class="my-4" v-for="image in images" :key="image">
-          <v-lazy :options="{
-              threshold: 0.5
-            }">
+      <div
+        v-infinite-scroll="loadMore"
+        infinite-scroll-disabled="busy"
+        infinite-scroll-distance="10"
+      >
+        <v-layout row md5 justify-space-around>
+          <v-flex class="my-4" v-for="image in images" :key="image">
             <Picture :size="size" :source="image" />
-          </v-lazy>
-        </v-flex>
-      </v-layout>
+          </v-flex>
+        </v-layout>
+      </div>
     </v-container>
   </div>
 </template>
@@ -27,20 +29,21 @@ export default {
   },
   data: () => ({
     images: new Array(),
-    references: new Array(),
     size: 350,
     folder: "val2017",
-    storageRef: FirebaseStorage.ref()
+    storageRef: FirebaseStorage.ref(),
+    busy: false,
+    nextPage: Object()
   }),
   mounted() {
     this.loadImages();
   },
   methods: {
     async loadImages() {
+      this.busy = true;
       let listRef = this.storageRef.child(this.folder);
-      let firstPage = await listRef.list({ maxResults: 100 });
+      let firstPage = await listRef.list({ maxResults: 10 });
       firstPage.items.forEach(item => {
-        this.references.push(item.location.path);
         this.storageRef
           .child(item.location.path)
           .getDownloadURL()
@@ -51,6 +54,29 @@ export default {
             console.log(error);
           });
       });
+      this.nextPage = firstPage.nextPageToken;
+      this.busy = false;
+    },
+    async loadMore() {
+      this.busy = true;
+      let listRef = this.storageRef.child(this.folder);
+      let page = await listRef.list({
+        maxResults: 10,
+        pageToken: this.nextPage
+      });
+      page.items.forEach(item => {
+        this.storageRef
+          .child(item.location.path)
+          .getDownloadURL()
+          .then(url => {
+            this.images.push(url);
+          })
+          .catch(error => {
+            console.log(error);
+          });
+      });
+      this.nextPage = page.nextPageToken;
+      this.busy = false;
     }
   }
 };
