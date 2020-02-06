@@ -14,16 +14,10 @@
 
 <script>
 export default {
-  data: () => ({
-    source: "https://picsum.photos/"
-  }),
+  data: () => ({}),
   props: {
-    size: Number
-  },
-  mounted() {
-    let width = Math.floor(Math.random() * Math.floor(200) + 250);
-    let height = Math.floor(Math.random() * Math.floor(200) + 250);
-    this.source += `${width}/${height}`;
+    size: Number,
+    source: String
   }
 };
 </script>
