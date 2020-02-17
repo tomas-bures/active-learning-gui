@@ -23,14 +23,6 @@ interface IImage {
   width: number;
   licence: number;
 }
-interface IInfo {
-  url: string;
-  contributor: string;
-  date_created: string;
-  description: string;
-  version: string;
-  year: number;
-}
 interface ILicenses {
   id: number;
   name: string;
@@ -41,7 +33,6 @@ export class DatasetDatabase extends Dexie {
   annotations: Dexie.Table<IAnnotation, number>;
   categories: Dexie.Table<ICategory, number>;
   images: Dexie.Table<IImage, number>;
-  infos: Dexie.Table<IInfo, number>;
   licenses: Dexie.Table<ILicenses, number>;
 
   constructor() {
@@ -56,7 +47,8 @@ export class DatasetDatabase extends Dexie {
     this.annotations = this.table("annotations");
     this.categories = this.table("categories");
     this.images = this.table("images");
-    this.infos = this.table("infos");
     this.licenses = this.table("licenses");
   }
 }
+
+export let database = new DatasetDatabase();
