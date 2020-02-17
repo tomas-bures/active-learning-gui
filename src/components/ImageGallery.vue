@@ -1,13 +1,8 @@
 <template>
   <div class="dataset">
-    <h1>Images</h1>
-    <v-slider v-model="size" min="100" max="1100" thumb-label="always"></v-slider>
+    <v-slider class="my-10" v-model="size" min="100" max="1100" thumb-label="always"></v-slider>
     <v-container class="my-5">
-      <div
-        v-infinite-scroll="loadMore"
-        infinite-scroll-disabled="busy"
-        infinite-scroll-distance="10"
-      >
+      <div v-infinite-scroll="loadMore" infinite-scroll-disabled="busy">
         <v-layout row md5 justify-space-around>
           <v-flex class="my-4" v-for="image in images" :key="image">
             <Picture :size="size" :source="image" />
@@ -21,6 +16,7 @@
 <script>
 import Picture from "./Picture.vue";
 import { FirebaseStorage } from "@/firebase/storage";
+import { database } from "@/store/store";
 
 export default {
   name: "image-gallery",
@@ -29,53 +25,52 @@ export default {
   },
   data: () => ({
     images: new Array(),
+    dataset: new Array(),
     size: 350,
     folder: "val2017",
     storageRef: FirebaseStorage.ref(),
     busy: false,
-    nextPage: Object()
+    page: Object(),
+    pageSize: 10
   }),
   mounted() {
-    this.loadImages();
+    // this.loadImages();
+    this.loadFirstPage();
   },
   methods: {
-    async loadImages() {
+    async loadFirstPage() {
       this.busy = true;
-      let listRef = this.storageRef.child(this.folder);
-      let firstPage = await listRef.list({ maxResults: 10 });
-      firstPage.items.forEach(item => {
+      this.page = await database.images
+        .orderBy("id")
+        .limit(this.pageSize)
+        .toArray();
+      this.page.forEach(item => {
         this.storageRef
-          .child(item.location.path)
+          .child(this.folder + "/" + item.file_name)
           .getDownloadURL()
           .then(url => {
             this.images.push(url);
-          })
-          .catch(error => {
-            console.log(error);
           });
       });
-      this.nextPage = firstPage.nextPageToken;
       this.busy = false;
     },
     async loadMore() {
+      if (this.page.length < this.pageSize) return;
       this.busy = true;
-      let listRef = this.storageRef.child(this.folder);
-      let page = await listRef.list({
-        maxResults: 10,
-        pageToken: this.nextPage
-      });
-      page.items.forEach(item => {
+      let lastImage = this.page[this.page.length - 1];
+      this.page = await database.images
+        .where("id")
+        .above(lastImage.id)
+        .limit(this.pageSize)
+        .toArray();
+      this.page.forEach(item => {
         this.storageRef
-          .child(item.location.path)
+          .child(this.folder + "/" + item.file_name)
           .getDownloadURL()
           .then(url => {
             this.images.push(url);
-          })
-          .catch(error => {
-            console.log(error);
           });
       });
-      this.nextPage = page.nextPageToken;
       this.busy = false;
     }
   }
