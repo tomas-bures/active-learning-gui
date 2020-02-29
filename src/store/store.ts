@@ -38,10 +38,9 @@ export class DatasetDatabase extends Dexie {
   constructor() {
     super("DatasetDatabase");
     this.version(1).stores({
-      annotations: "id, image_id",
+      annotations: "id, image_id, area, category_id",
       categories: "id, supercategory",
       images: "id, file_name",
-      infos: "++id",
       licenses: "id"
     });
     this.annotations = this.table("annotations");
