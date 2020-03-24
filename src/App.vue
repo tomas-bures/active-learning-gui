@@ -11,8 +11,10 @@
 import Vue from "vue";
 import Navbar from "@/components/Navbar.vue";
 import infiniteScroll from "vue-infinite-scroll";
+import VueObserveVisibility from "vue-observe-visibility";
 
 Vue.use(infiniteScroll);
+Vue.use(VueObserveVisibility);
 
 export default Vue.extend({
   name: "App",
