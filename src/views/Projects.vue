@@ -25,14 +25,7 @@ export default {
       for (let i = 0; i < e.length; i++) {
         let file = e[i];
         let imageRef = this.storageRef.child("val2017/" + file.name);
-        imageRef
-          .put(file)
-          .then(function(snapshot) {
-            console.log("Uploaded file number " + i);
-          })
-          .catch(reason => {
-            console.log(reason);
-          });
+        imageRef.put(file);
       }
       this.loading = false;
     },
@@ -41,9 +34,7 @@ export default {
       let reader = new FileReader();
       reader.onload = () => {
         let fileContent = JSON.parse(reader.result);
-        this.populateDatabase(fileContent).then(x => {
-          console.log("HOTOVO");
-        });
+        this.populateDatabase(fileContent);
       };
       reader.readAsText(file);
     },
@@ -52,7 +43,6 @@ export default {
         database.annotations.clear(),
         database.categories.clear(),
         database.images.clear(),
-        database.infos.clear(),
         database.licenses.clear()
       ]);
       await database.transaction(
@@ -60,7 +50,6 @@ export default {
         database.annotations,
         database.categories,
         database.images,
-        database.infos,
         database.licenses,
         async function() {
           fileContent.annotations.forEach(annotation =>
