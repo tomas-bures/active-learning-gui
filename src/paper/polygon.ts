@@ -14,6 +14,7 @@ export function drawPolygon(
   polygon.fillColor = color;
   polygon.strokeColor = color;
   polygon.opacity = 0.5;
+  polygon.closed = true;
   let second = false;
   let x = 0;
   let y = 0;
