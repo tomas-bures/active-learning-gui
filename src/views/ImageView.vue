@@ -1,13 +1,13 @@
 <template>
-  <image-modifier />
+  <image-annotator />
 </template>
 
 <script>
-import ImageModifier from "../components/ImageModifier.vue";
+import ImageAnnotator from "../components/ImageAnnotator.vue";
 
 export default {
   components: {
-    ImageModifier
+    ImageAnnotator
   }
 };
 </script>
