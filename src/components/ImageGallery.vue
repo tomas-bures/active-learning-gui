@@ -4,7 +4,12 @@
     <v-container class="my-5">
       <div v-infinite-scroll="loadMore" infinite-scroll-disabled="busy">
         <v-layout row md5 justify-space-around>
-          <v-flex class="my-4" v-for="image in images" :key="image.url" @click="testClick(image)">
+          <v-flex
+            class="my-4"
+            v-for="image in images"
+            :key="image.url"
+            @click="openAnnotator(image)"
+          >
             <Picture
               :size="size"
               :source="image.url"
@@ -93,7 +98,7 @@ export default {
     this.loadFirstPage();
   },
   methods: {
-    async testClick(img) {
+    async openAnnotator(img) {
       this.$router.push({
         name: "image",
         params: {
