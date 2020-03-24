@@ -17,7 +17,7 @@
         </v-layout>
       </div>
     </v-container>
-    <v-bottom-navigation app height="250" dark>
+    <v-bottom-navigation app height="170" dark>
       <v-data-table
         :headers="headers"
         :items="tableData"
@@ -129,6 +129,7 @@ export default {
         };
         this.images.push(imageWithInfo);
       }
+      let categories = await database.categories.orderBy("id").toArray();
       this.busy = false;
     },
     async loadMore() {
