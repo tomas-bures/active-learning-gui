@@ -2,14 +2,15 @@
   <div>
     <v-container>
       <v-row align="stretch">
-        <v-col cols="9">
+        <v-col cols="8">
           <canvas id="canvas"></canvas>
           <img :src="source" id="image" display="none" />
           <v-btn @click="recenter">Recenter</v-btn>
         </v-col>
-        <v-col>
+        <v-spacer></v-spacer>
+        <v-col cols="4">
           <v-card>
-            <v-simple-table height="600" fixed-header>
+            <v-simple-table height="570" fixed-header>
               <thead>
                 <tr>
                   <th class="text-left">ID</th>
@@ -19,7 +20,7 @@
               </thead>
               <tbody>
                 <tr
-                  v-for="item in annotations"
+                  v-for="item in tableData"
                   :key="item.id"
                   @mouseenter="selectAnnotationPolygonOnTableItemHover"
                   @mouseleave="unselectAnnotationPolygonOnTableItemHover"
@@ -48,22 +49,24 @@ export default {
   data: () => ({
     raster: new paper.Raster("image"),
     factor: 1.05,
-    annotationPolygons: new Array(),
-    categories: new Array()
+    annotationPolygons: new Array()
   }),
   computed: {
     source: function() {
       return this.$route.params.source;
     },
     annotations: function() {
-      return this.$route.params.annotations;
+      return this.$store.state.currentImageAnnotations;
+    },
+    annotationCategories: function() {
+      return this.$store.state.categories;
     },
     tableData: function() {
       let data = [];
       for (let i = 0; i < this.annotations.length; i++) {
         const item = {
           id: this.annotations[i].id,
-          category: this.categories.find(
+          category: this.annotationCategories.find(
             category => category.id == this.annotations[i].category_id
           ).name,
           iscrowd: this.annotations[i].iscrowd
@@ -80,28 +83,42 @@ export default {
   },
   mounted() {
     paper.setup("canvas");
-    this.raster = new paper.Raster("image");
-    this.raster.position = view.center;
-    for (let i = 0; i < this.annotations.length; i++) {
-      let color = new paper.Color(
-        categoryColors.get(this.annotations[i].category_id)
-      );
-      this.annotationPolygons.push(
-        drawPolygon(
-          this.annotations[i].segmentation[0],
-          this.raster.bounds.topLeft,
-          color
-        )
-      );
-    }
+    this.drawImage();
+    this.drawAnnotationsPolygons();
   },
   destroyed() {
-    // Need to remove lister, otherwise it would still fire after user exited this component
+    // Need to remove listener, otherwise it would still fire after user exited this component
     window.removeEventListener("wheel", this.zoom);
   },
   methods: {
-    recenter() {
+    drawImage() {
+      this.raster = new paper.Raster("image");
       this.raster.position = view.center;
+    },
+    drawAnnotationsPolygons() {
+      for (let i = 0; i < this.annotations.length; i++) {
+        let color = new paper.Color(
+          categoryColors.get(this.annotations[i].category_id)
+        );
+        if (Array.isArray(this.annotations[i].segmentation)) {
+          this.annotationPolygons.push(
+            drawPolygon(
+              this.annotations[i].segmentation[0],
+              this.raster.bounds.topLeft,
+              color
+            )
+          );
+        }
+      }
+    },
+    recenter() {
+      for (let i = 0; i < this.annotationPolygons.length; i++) {
+        this.annotationPolygons[i].remove();
+      }
+      this.annotationPolygons = [];
+      paper.view.zoom = 1;
+      this.raster.position = view.center;
+      this.drawAnnotationsPolygons();
     },
     zoom(event) {
       // If mouse pointer is not inside canvas, make no action
@@ -143,6 +160,7 @@ canvas {
   margin-top: 1%;
   width: 100%;
   height: 100%;
+  border: orangered solid 1px;
 }
 img {
   display: none;
