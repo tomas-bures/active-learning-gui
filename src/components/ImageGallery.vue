@@ -99,12 +99,14 @@ export default {
   },
   methods: {
     async openAnnotator(img) {
+      const categories = await database.categories.orderBy("id").toArray();
+      this.$store.commit("setCategories", categories);
+      this.$store.commit("setCurrentImageAnnotations", img.annotations);
       this.$router.push({
         name: "image",
         params: {
           id: img.image.id,
-          source: img.url,
-          annotations: img.annotations
+          source: img.url
         }
       });
     },
