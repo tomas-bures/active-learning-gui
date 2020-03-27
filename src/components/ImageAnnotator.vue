@@ -40,7 +40,7 @@
 
 <script>
 import paper from "paper";
-import "../paper/pan";
+import "../paper/mouseTools";
 import { drawPolygon } from "../paper/polygon";
 import { categoryColors } from "../paper/categoryColors";
 import { database } from "../store/store";
