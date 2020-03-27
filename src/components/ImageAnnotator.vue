@@ -94,6 +94,7 @@ export default {
     drawImage() {
       this.raster = new paper.Raster("image");
       this.raster.position = view.center;
+      this.raster.locked = true;
     },
     drawAnnotationsPolygons() {
       for (let i = 0; i < this.annotations.length; i++) {
