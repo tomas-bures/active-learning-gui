@@ -30,11 +30,5 @@ export function drawPolygon(
       second = false;
     }
   }
-  polygon.onMouseEnter = function() {
-    this.selected = true;
-  };
-  polygon.onMouseLeave = function() {
-    this.selected = false;
-  };
   return polygon;
 }
