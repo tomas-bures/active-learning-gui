@@ -27,7 +27,6 @@ function onMouseDown(event: any) {
   }
   if (hitResult) {
     path = hitResult.item;
-    console.log(path);
     if (hitResult.type == "segment") {
       segment = hitResult.segment;
     } else if (hitResult.type == "stroke") {
@@ -42,14 +41,18 @@ function onMouseDown(event: any) {
 }
 
 function onMouseDrag(event: any) {
-  // if (segment) {
-  //   segment.point += event.delta;
-  // } else if (path) {
-  //   path.position += event.delta;
-  // }
-  let a = event.downPoint.subtract(event.point);
-  a = a.add(paper.view.center);
-  paper.view.center = a;
+  // Can't use segment.point += event.delta because typescript...
+  if (segment) {
+    segment.point.x += event.delta.x;
+    segment.point.y += event.delta.y;
+  } else if (path) {
+    path.position.x += event.delta.x;
+    path.position.y += event.delta.y;
+  } else {
+    let a = event.downPoint.subtract(event.point);
+    a = a.add(paper.view.center);
+    paper.view.center = a;
+  }
 }
 
 export const mouseTool = new paper.Tool();

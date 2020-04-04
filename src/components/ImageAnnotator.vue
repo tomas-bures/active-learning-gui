@@ -23,7 +23,7 @@
                   v-for="item in tableData"
                   :key="item.id"
                   @mouseenter="selectAnnotationPolygonOnTableItemHover"
-                  @mouseleave="unselectAnnotationPolygonOnTableItemHover"
+                  @mouseleave="deselectAnnotationPolygonOnTableItemHover"
                 >
                   <td>{{ item.id }}</td>
                   <td>{{ item.category }}</td>
@@ -102,13 +102,12 @@ export default {
           categoryColors.get(this.annotations[i].category_id)
         );
         if (Array.isArray(this.annotations[i].segmentation)) {
-          this.annotationPolygons.push(
-            drawPolygon(
-              this.annotations[i].segmentation[0],
-              this.raster.bounds.topLeft,
-              color
-            )
+          const polygon = drawPolygon(
+            this.annotations[i].segmentation[0],
+            this.raster.bounds.topLeft,
+            color
           );
+          this.annotationPolygons.push(polygon);
         }
       }
     },
@@ -146,7 +145,7 @@ export default {
     selectAnnotationPolygonOnTableItemHover(event) {
       this.annotationPolygons[event.target.rowIndex - 1].selected = true;
     },
-    unselectAnnotationPolygonOnTableItemHover(event) {
+    deselectAnnotationPolygonOnTableItemHover(event) {
       this.annotationPolygons[event.target.rowIndex - 1].selected = false;
     },
     async loadCategories() {
