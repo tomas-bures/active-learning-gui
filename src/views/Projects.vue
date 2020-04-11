@@ -6,6 +6,9 @@
     <v-card :loading="loading">
       <v-file-input class="my-5 mx-5" multiple label="JSON input" @change="readJSON"></v-file-input>
     </v-card>
+    <v-overlay :value="overlay">
+      <v-progress-circular indeterminate size="64"></v-progress-circular>
+    </v-overlay>
   </div>
 </template>
 
@@ -17,7 +20,8 @@ import { database } from "@/store/store";
 export default {
   data: () => ({
     loading: false,
-    storageRef: FirebaseStorage.ref()
+    storageRef: FirebaseStorage.ref(),
+    overlay: false
   }),
   methods: {
     readFiles(e) {
@@ -39,6 +43,7 @@ export default {
       reader.readAsText(file);
     },
     async populateDatabase(fileContent) {
+      this.overlay = true;
       await Promise.all([
         database.annotations.clear(),
         database.categories.clear(),
@@ -58,12 +63,26 @@ export default {
           fileContent.categories.forEach(category =>
             database.categories.add(category)
           );
-          fileContent.images.forEach(image => database.images.add(image));
+          for (let image of fileContent.images) {
+            image.annotations = await database.annotations
+              .where("image_id")
+              .equals(image.id)
+              .toArray();
+            if (image.annotations.length > 0) {
+              image.annotationsArea = image.annotations.reduce(
+                (acc, annotation) => acc + annotation.area,
+                0
+              );
+            }
+            database.images.add(image);
+          }
           fileContent.licenses.forEach(license =>
             database.licenses.add(license)
           );
         }
       );
+      this.overlay = false;
+      alert("JSON file succesfully imported");
     }
   }
 };
