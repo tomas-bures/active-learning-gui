@@ -15,7 +15,7 @@
                 <tr>
                   <th class="text-left">ID</th>
                   <th class="text-left">Category</th>
-                  <th class="text-left">IsCrowd</th>
+                  <th class="text-left">Area</th>
                 </tr>
               </thead>
               <tbody>
@@ -27,7 +27,7 @@
                 >
                   <td>{{ item.id }}</td>
                   <td>{{ item.category }}</td>
-                  <td>{{ item.iscrowd }}</td>
+                  <td>{{ item.area }}</td>
                 </tr>
               </tbody>
             </v-simple-table>
@@ -69,7 +69,7 @@ export default {
           category: this.annotationCategories.find(
             category => category.id == this.annotations[i].category_id
           ).name,
-          iscrowd: this.annotations[i].iscrowd
+          area: this.annotations[i].area
         };
         data.push(item);
       }
