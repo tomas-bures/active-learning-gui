@@ -8,7 +8,6 @@ interface IAnnotation {
   iscrowd: number;
   segmentation: Array<number>;
   bbox: Array<number>;
-  bbox_area: number;
 }
 interface ICategory {
   id: number;
@@ -24,6 +23,8 @@ interface IImage {
   height: number;
   width: number;
   licence?: number;
+  annotations: Array<IAnnotation>;
+  annotationsArea: number;
 }
 interface ILicenses {
   id: number;
@@ -40,9 +41,9 @@ export class DatasetDatabase extends Dexie {
   constructor() {
     super("DatasetDatabase");
     this.version(1).stores({
-      annotations: "id, image_id, area, category_id, bbox_area",
+      annotations: "id, image_id, area, category_id",
       categories: "id, supercategory",
-      images: "id, file_name",
+      images: "id, annotationsArea",
       licenses: "id"
     });
     this.annotations = this.table("annotations");
@@ -50,7 +51,6 @@ export class DatasetDatabase extends Dexie {
     this.images = this.table("images");
     this.licenses = this.table("licenses");
     this.images.mapToClass(Image);
-    this.annotations.mapToClass(Annotation);
   }
 }
 
@@ -59,49 +59,76 @@ export class Image implements IImage {
   file_name: string;
   height: number;
   width: number;
-  annotations: Annotation[] | undefined;
-  constructor(id: number, file_name: string, height: number, width: number) {
+  annotations: Array<IAnnotation>;
+  annotationsArea: number;
+  constructor(
+    id: number,
+    file_name: string,
+    height: number,
+    width: number,
+    annotations: Array<IAnnotation>,
+    annotationsArea: number
+  ) {
     this.id = id;
     this.file_name = file_name;
     this.height = height;
     this.width = width;
-  }
-
-  async loadAnnotations() {
-    this.annotations = await database.annotations
-      .where("image_id")
-      .equals(this.id)
-      .toArray();
-  }
-}
-
-export class Annotation implements IAnnotation {
-  id: number;
-  area: number;
-  category_id: number;
-  image_id: number;
-  iscrowd: number;
-  segmentation: Array<number>;
-  bbox: Array<number>;
-  bbox_area: number;
-  constructor(
-    id: number,
-    area: number,
-    category_id: number,
-    image_id: number,
-    isCrowd: number,
-    segmentation: Array<number>,
-    bbox: Array<number>
-  ) {
-    this.id = id;
-    this.area = area;
-    this.category_id = category_id;
-    this.image_id = image_id;
-    this.iscrowd = isCrowd;
-    this.segmentation = segmentation;
-    this.bbox = bbox;
-    this.bbox_area = this.bbox.slice(-2).reduce((side, mul) => side * mul);
+    this.annotations = annotations;
+    this.annotationsArea = annotationsArea;
   }
 }
 
 export let database = new DatasetDatabase();
+
+async function orderAnnotationsByArea(
+  offset: number,
+  descending: boolean,
+  limit: number
+) {
+  if (descending) {
+    return database.annotations
+      .orderBy("area")
+      .reverse()
+      .offset(offset)
+      .limit(limit)
+      .toArray();
+  }
+  return database.annotations
+    .orderBy("area")
+    .offset(offset)
+    .limit(limit)
+    .toArray();
+}
+
+export async function getImagesFromOrderedAnnotations(
+  offset: number,
+  descending: boolean,
+  limit: number
+) {
+  const annotations = await orderAnnotationsByArea(offset, descending, limit);
+  let images = [];
+  for (let i = 0; i < annotations.length; i++) {
+    images.push(await database.images.get(annotations[i].image_id));
+  }
+  return images;
+}
+
+export async function getImagesOrderedByAnnotationsArea(
+  offset: number,
+  descending: boolean,
+  limit: number
+) {
+  if (descending) {
+    return database.images
+      .orderBy("annotationsArea")
+      .reverse()
+      .offset(offset)
+      .limit(limit)
+      .toArray();
+  }
+  return database.images
+    .orderBy("annotationsArea")
+    .offset(offset)
+    .limit(limit)
+    .toArray();
+}
