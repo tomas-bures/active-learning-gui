@@ -77,7 +77,6 @@ export default {
     }
   },
   created() {
-    this.loadCategories();
     paper.install(window);
     window.addEventListener("wheel", this.zoom);
   },
@@ -147,9 +146,6 @@ export default {
     },
     deselectAnnotationPolygonOnTableItemHover(event) {
       this.annotationPolygons[event.target.rowIndex - 1].selected = false;
-    },
-    async loadCategories() {
-      this.categories = await database.categories.orderBy("id").toArray();
     }
   }
 };
