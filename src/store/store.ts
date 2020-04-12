@@ -100,7 +100,7 @@ async function orderAnnotationsByArea(
     .toArray();
 }
 
-export async function getImagesFromOrderedAnnotations(
+async function getImagesFromOrderedAnnotations(
   offset: number,
   descending: boolean,
   limit: number
@@ -113,7 +113,7 @@ export async function getImagesFromOrderedAnnotations(
   return images;
 }
 
-export async function getImagesOrderedByAnnotationsArea(
+async function getImagesOrderedByAnnotationsArea(
   offset: number,
   descending: boolean,
   limit: number
@@ -131,4 +131,24 @@ export async function getImagesOrderedByAnnotationsArea(
     .offset(offset)
     .limit(limit)
     .toArray();
+}
+
+export function loadImagesOrderedBySelectedCritera(
+  offset: number,
+  sortBy: number,
+  descending: boolean,
+  pageSize: number
+) {
+  switch (sortBy) {
+    case 0:
+      return getImagesFromOrderedAnnotations(offset, descending, pageSize);
+    case 1:
+      return getImagesOrderedByAnnotationsArea(offset, descending, pageSize);
+    case 3:
+      break;
+    case 4:
+      break;
+    default:
+      break;
+  }
 }

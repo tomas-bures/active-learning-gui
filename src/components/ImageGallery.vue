@@ -59,11 +59,7 @@
 <script>
 import Picture from "./Picture.vue";
 import { FirebaseStorage } from "@/firebase/storage";
-import {
-  database,
-  getImagesOrderedByAnnotationsArea,
-  getImagesFromOrderedAnnotations
-} from "@/store/store";
+import { database, loadImagesOrderedBySelectedCritera } from "@/store/store";
 
 export default {
   name: "image-gallery",
@@ -142,7 +138,12 @@ export default {
     },
     async loadFirstPage() {
       this.busy = true;
-      this.page = await this.loadImagesOrderedBySelectedCritera();
+      this.page = await loadImagesOrderedBySelectedCritera(
+        0,
+        this.sortBy,
+        this.descending,
+        this.pageSize
+      );
       //For some reason cannot use for..of -> produces Uncaught exception: this.page[Symbol.iterator] is not a function
       for (let i = 0; i < this.page.length; i++) {
         let item = this.page[i];
@@ -164,7 +165,12 @@ export default {
       if (this.page.length < this.pageSize) return;
       this.busy = true;
       this.tablePage++;
-      this.page = await this.loadImagesOrderedBySelectedCritera();
+      this.page = await loadImagesOrderedBySelectedCritera(
+        this.images.length,
+        this.sortBy,
+        this.descending,
+        this.pageSize
+      );
       for (let i = 0; i < this.page.length; i++) {
         let item = this.page[i];
         let imageURL = await this.storageRef
@@ -205,9 +211,9 @@ export default {
       }
     },
     reloadImages() {
+      console.log(this.images, this.images.length);
       this.images.length = 0;
       this.page.length = 0;
-      console.log(this.images, this.images.length);
       this.loadFirstPage();
     }
   },
