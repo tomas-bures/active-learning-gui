@@ -5,15 +5,15 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    categories: new Array(),
-    currentImageAnnotations: new Array()
+    categories: [],
+    currentImage: null
   },
   mutations: {
     setCategories(state, categories) {
       state.categories = categories;
     },
-    setCurrentImageAnnotations(state, annotations) {
-      state.currentImageAnnotations = annotations;
+    setCurrentImage(state, annotations) {
+      state.currentImage = annotations;
     }
   },
   actions: {},

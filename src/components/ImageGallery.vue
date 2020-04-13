@@ -108,9 +108,9 @@ export default {
       this.images.forEach(item => {
         let dataItem = {
           id: item.image.id,
-          annotation_id: item.annotations[0].id,
-          annotation_bbox: item.annotations[0].bbox,
-          annotations_area: item.annotationsArea
+          annotation_id: item.image.annotations[0].id,
+          annotation_bbox: item.image.annotations[0].bbox,
+          annotations_area: item.image.annotationsArea
         };
         data.push(dataItem);
       });
@@ -124,7 +124,7 @@ export default {
     async openAnnotator(img) {
       const categories = await database.categories.orderBy("id").toArray();
       this.$store.commit("setCategories", categories);
-      this.$store.commit("setCurrentImageAnnotations", img.annotations);
+      this.$store.commit("setCurrentImage", img.image);
       this.$router.push({
         name: "image",
         params: {
@@ -152,8 +152,6 @@ export default {
         let imageWithInfo = {
           image: item,
           url: imageURL,
-          annotations: item.annotations,
-          annotationsArea: item.annotationsArea,
           key: Date.now()
         };
         this.images.push(imageWithInfo);
@@ -179,8 +177,6 @@ export default {
         let imageWithInfo = {
           image: item,
           url: imageURL,
-          annotations: item.annotations,
-          annotationsArea: item.annotationsArea,
           key: Date.now()
         };
         this.images.push(imageWithInfo);
@@ -188,7 +184,6 @@ export default {
       this.busy = false;
     },
     reloadImages() {
-      console.log(this.images, this.images.length);
       this.images.length = 0;
       this.page.length = 0;
       this.loadFirstPage();
