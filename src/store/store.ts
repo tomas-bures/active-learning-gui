@@ -81,31 +81,66 @@ export class Image implements IImage {
 export let database = new DatasetDatabase();
 
 async function orderAnnotationsByArea(
-  offset: number,
   descending: boolean,
-  limit: number
+  limit: number,
+  offset?: number
 ) {
-  if (descending) {
+  if (offset === undefined) {
+    if (descending) {
+      return database.annotations
+        .orderBy("area")
+        .reverse()
+        .limit(limit)
+        .toArray();
+    }
     return database.annotations
       .orderBy("area")
-      .reverse()
-      .offset(offset)
+      .limit(limit)
+      .toArray();
+  } else {
+    if (descending) {
+      return database.annotations
+        .where("area")
+        .below(offset)
+        .reverse()
+        .limit(limit)
+        .toArray();
+    }
+    return database.annotations
+      .where("area")
+      .above(offset)
       .limit(limit)
       .toArray();
   }
-  return database.annotations
-    .orderBy("area")
-    .offset(offset)
-    .limit(limit)
-    .toArray();
 }
 
 async function getImagesFromOrderedAnnotations(
-  offset: number,
   descending: boolean,
-  limit: number
+  limit: number,
+  offset?: IImage
 ) {
-  const annotations = await orderAnnotationsByArea(offset, descending, limit);
+  let annotations = [];
+  if (offset === undefined) {
+    annotations = await orderAnnotationsByArea(descending, limit);
+  } else {
+    let annotationOffset: number;
+    if (descending) {
+      annotationOffset = Math.max(
+        ...offset.annotations.map(item => item.area),
+        0
+      );
+    } else {
+      annotationOffset = Math.min(
+        ...offset.annotations.map(item => item.area),
+        0
+      );
+    }
+    annotations = await orderAnnotationsByArea(
+      descending,
+      limit,
+      annotationOffset
+    );
+  }
   let images = [];
   for (let i = 0; i < annotations.length; i++) {
     images.push(await database.images.get(annotations[i].image_id));
@@ -114,36 +149,50 @@ async function getImagesFromOrderedAnnotations(
 }
 
 async function getImagesOrderedByAnnotationsArea(
-  offset: number,
   descending: boolean,
-  limit: number
+  limit: number,
+  offset?: IImage
 ) {
-  if (descending) {
+  if (offset === undefined) {
+    if (descending) {
+      return database.images
+        .orderBy("annotationsArea")
+        .reverse()
+        .limit(limit)
+        .toArray();
+    }
     return database.images
       .orderBy("annotationsArea")
-      .reverse()
-      .offset(offset)
+      .limit(limit)
+      .toArray();
+  } else {
+    if (descending) {
+      return database.images
+        .where("annotationsArea")
+        .below(offset.annotationsArea)
+        .reverse()
+        .limit(limit)
+        .toArray();
+    }
+    return database.images
+      .where("annotationsArea")
+      .above(offset.annotationsArea)
       .limit(limit)
       .toArray();
   }
-  return database.images
-    .orderBy("annotationsArea")
-    .offset(offset)
-    .limit(limit)
-    .toArray();
 }
 
 export function loadImagesOrderedBySelectedCritera(
-  offset: number,
   sortBy: number,
   descending: boolean,
-  pageSize: number
+  pageSize: number,
+  offset?: IImage
 ) {
   switch (sortBy) {
     case 0:
-      return getImagesFromOrderedAnnotations(offset, descending, pageSize);
+      return getImagesFromOrderedAnnotations(descending, pageSize, offset);
     case 1:
-      return getImagesOrderedByAnnotationsArea(offset, descending, pageSize);
+      return getImagesOrderedByAnnotationsArea(descending, pageSize, offset);
     case 3:
       break;
     case 4:
