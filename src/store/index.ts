@@ -6,7 +6,9 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     categories: [],
-    currentImage: null
+    currentImage: null,
+    sortingCriteria: 1,
+    descendingOrder: false
   },
   mutations: {
     setCategories(state, categories) {
@@ -14,6 +16,12 @@ export default new Vuex.Store({
     },
     setCurrentImage(state, annotations) {
       state.currentImage = annotations;
+    },
+    setSortingCriteria(state, criteria) {
+      state.sortingCriteria = criteria;
+    },
+    switchDescendingOrder(state) {
+      state.descendingOrder = !state.descendingOrder;
     }
   },
   actions: {},
