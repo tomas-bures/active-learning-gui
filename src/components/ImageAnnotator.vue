@@ -5,7 +5,9 @@
         <v-col cols="8">
           <canvas id="canvas"></canvas>
           <img :src="source" id="image" display="none" />
-          <v-btn @click="recenter">Recenter</v-btn>
+          <v-btn @click="loadPrevious">PREVIOUS</v-btn>
+          <v-btn @click="recenter" class="mx-2">Recenter</v-btn>
+          <v-btn @click="loadNext">NEXT</v-btn>
         </v-col>
         <v-spacer></v-spacer>
         <v-col cols="4">
@@ -43,20 +45,22 @@ import paper from "paper";
 import "../paper/mouseTools";
 import { drawPolygon } from "../paper/polygon";
 import { categoryColors } from "../paper/categoryColors";
-import { database } from "../store/store";
+import { database, loadImagesOrderedBySelectedCritera } from "../store/store";
+import { FirebaseStorage } from "@/firebase/storage";
 
 export default {
   data: () => ({
     raster: new paper.Raster("image"),
     factor: 1.05,
-    annotationPolygons: new Array()
+    annotationPolygons: [],
+    storageRef: FirebaseStorage.ref()
   }),
   computed: {
     source: function() {
       return this.$route.params.source;
     },
     annotations: function() {
-      return this.$store.state.currentImageAnnotations;
+      return this.$store.state.currentImage.annotations;
     },
     annotationCategories: function() {
       return this.$store.state.categories;
@@ -118,6 +122,28 @@ export default {
       paper.view.zoom = 1;
       this.raster.position = view.center;
       this.drawAnnotationsPolygons();
+    },
+    loadPrevious() {},
+    async loadNext() {
+      const next = await loadImagesOrderedBySelectedCritera(
+        this.$store.state.sortingCriteria,
+        this.$store.state.descendingOrder,
+        1,
+        this.$store.state.currentImage
+      );
+      const nextImage = next[0];
+      this.$store.commit("setCurrentImage", nextImage);
+      const imageURL = await this.storageRef
+        .child("val2017/" + nextImage.file_name)
+        .getDownloadURL();
+      this.$router.replace({
+        name: "image",
+        params: {
+          id: nextImage.id,
+          source: imageURL
+        }
+      });
+      this.recenter();
     },
     zoom(event) {
       // If mouse pointer is not inside canvas, make no action
