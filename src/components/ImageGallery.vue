@@ -139,7 +139,6 @@ export default {
     async loadFirstPage() {
       this.busy = true;
       this.page = await loadImagesOrderedBySelectedCritera(
-        0,
         this.sortBy,
         this.descending,
         this.pageSize
@@ -165,11 +164,12 @@ export default {
       if (this.page.length < this.pageSize) return;
       this.busy = true;
       this.tablePage++;
+      const lastPage = this.page[this.page.length - 1];
       this.page = await loadImagesOrderedBySelectedCritera(
-        this.images.length,
         this.sortBy,
         this.descending,
-        this.pageSize
+        this.pageSize,
+        lastPage
       );
       for (let i = 0; i < this.page.length; i++) {
         let item = this.page[i];
@@ -186,29 +186,6 @@ export default {
         this.images.push(imageWithInfo);
       }
       this.busy = false;
-    },
-    loadImagesOrderedBySelectedCritera() {
-      const offset = this.images.length;
-      switch (this.sortBy) {
-        case 0:
-          return getImagesFromOrderedAnnotations(
-            offset,
-            this.descending,
-            this.pageSize
-          );
-        case 1:
-          return getImagesOrderedByAnnotationsArea(
-            offset,
-            this.descending,
-            this.pageSize
-          );
-        case 3:
-          break;
-        case 4:
-          break;
-        default:
-          break;
-      }
     },
     reloadImages() {
       console.log(this.images, this.images.length);
