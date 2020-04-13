@@ -77,8 +77,6 @@ export default {
     pageSize: 20,
     search: "",
     tablePage: 1,
-    sortBy: 1,
-    descending: false,
     headers: [
       {
         text: "ID",
@@ -115,6 +113,22 @@ export default {
         data.push(dataItem);
       });
       return data;
+    },
+    sortBy: {
+      get() {
+        return this.$store.state.sortingCriteria;
+      },
+      set(sortBy) {
+        this.$store.commit("setSortingCriteria", sortBy);
+      }
+    },
+    descending: {
+      get() {
+        return this.$store.state.descendingOrder;
+      },
+      set() {
+        this.$store.commit("switchDescendingOrder");
+      }
     }
   },
   mounted() {
