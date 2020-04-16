@@ -5,19 +5,6 @@
         <v-col cols="8">
           <canvas id="canvas"></canvas>
           <img :src="source" id="image" display="none" />
-          <v-btn @click="loadPrevious" icon>
-            <v-icon>navigate_before</v-icon>
-          </v-btn>
-          <v-btn @click="rotateLeft" class="mx-2" icon>
-            <v-icon>rotate_left</v-icon>
-          </v-btn>
-          <v-btn @click="recenter" class="mx-2">Recenter</v-btn>
-          <v-btn @click="rotateRight" class="mx-2" icon>
-            <v-icon>rotate_right</v-icon>
-          </v-btn>
-          <v-btn @click="loadNext" icon>
-            <v-icon>navigate_next</v-icon>
-          </v-btn>
         </v-col>
         <v-spacer></v-spacer>
         <v-col cols="4">
@@ -139,50 +126,6 @@ export default {
       view.rotation = 0;
       this.raster.position = view.center;
       this.drawAnnotationsPolygons();
-    },
-    async loadPrevious() {
-      const previous = await loadImagesOrderedBySelectedCritera(
-        this.$store.state.sortingCriteria,
-        !this.$store.state.descendingOrder,
-        1,
-        this.$store.state.currentImage
-      );
-      const previousImage = previous[0];
-      this.$store.commit("setCurrentImage", previousImage);
-      const imageURL = await this.storageRef
-        .child("val2017/" + previousImage.file_name)
-        .getDownloadURL();
-      this.$router.replace({
-        name: "image",
-        params: {
-          id: previousImage.id,
-          source: imageURL
-        }
-      });
-      this.recenter();
-      view.rotation = 0;
-    },
-    async loadNext() {
-      const next = await loadImagesOrderedBySelectedCritera(
-        this.$store.state.sortingCriteria,
-        this.$store.state.descendingOrder,
-        1,
-        this.$store.state.currentImage
-      );
-      const nextImage = next[0];
-      this.$store.commit("setCurrentImage", nextImage);
-      const imageURL = await this.storageRef
-        .child("val2017/" + nextImage.file_name)
-        .getDownloadURL();
-      this.$router.replace({
-        name: "image",
-        params: {
-          id: nextImage.id,
-          source: imageURL
-        }
-      });
-      this.recenter();
-      view.rotation = 0;
     },
     zoom(event) {
       // If mouse pointer is not inside canvas, make no action
