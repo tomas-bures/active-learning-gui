@@ -42,15 +42,12 @@ import paper from "paper";
 import "../paper/mouseTools";
 import { drawPolygon } from "../paper/polygon";
 import { categoryColors } from "../paper/categoryColors";
-import { database, loadImagesOrderedBySelectedCritera } from "../store/store";
-import { FirebaseStorage } from "@/firebase/storage";
 
 export default {
   data: () => ({
     raster: new paper.Raster("image"),
     factor: 1.05,
-    annotationPolygons: [],
-    storageRef: FirebaseStorage.ref()
+    annotationPolygons: []
   }),
   computed: {
     source: function() {
