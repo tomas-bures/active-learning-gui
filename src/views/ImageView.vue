@@ -1,13 +1,13 @@
 <template>
-  <image-annotator />
+  <annotator-wrapper />
 </template>
 
 <script>
-import ImageAnnotator from "../components/ImageAnnotator.vue";
+import AnnotatorWrapper from "../components/AnnotatorWrapper.vue";
 
 export default {
   components: {
-    ImageAnnotator
+    AnnotatorWrapper
   }
 };
 </script>

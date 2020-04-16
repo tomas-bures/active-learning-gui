@@ -1,10 +1,20 @@
 <template>
   <div>
     <v-card :loading="loading">
-      <v-file-input class="my-5 mx-5" multiple label="File input" @change="readFiles"></v-file-input>
+      <v-file-input
+        class="my-5 mx-5"
+        multiple
+        label="File input"
+        @change="readFiles"
+      ></v-file-input>
     </v-card>
     <v-card :loading="loading">
-      <v-file-input class="my-5 mx-5" multiple label="JSON input" @change="readJSON"></v-file-input>
+      <v-file-input
+        class="my-5 mx-5"
+        multiple
+        label="JSON input"
+        @change="readJSON"
+      ></v-file-input>
     </v-card>
     <v-overlay :value="overlay">
       <v-progress-circular indeterminate size="64"></v-progress-circular>
