@@ -44,42 +44,31 @@ export default {
     recenter() {
       this.$refs.test.recenter();
     },
-    async loadPrevious() {
-      const previous = await loadImagesOrderedBySelectedCritera(
-        this.$store.state.sortingCriteria,
-        !this.$store.state.descendingOrder,
-        1,
-        this.$store.state.currentImage
-      );
-      const previousImage = previous[0];
-      this.$store.commit("setCurrentImage", previousImage);
-      const imageURL = await this.storageRef
-        .child("val2017/" + previousImage.file_name)
-        .getDownloadURL();
-      this.$router.replace({
-        name: "image",
-        params: {
-          id: previousImage.id,
-          source: imageURL
-        }
-      });
+    loadPrevious() {
+      this.load(false);
     },
-    async loadNext() {
-      const next = await loadImagesOrderedBySelectedCritera(
+    loadNext() {
+      this.load(true);
+    },
+    async load(next) {
+      const descending = next
+        ? this.$store.state.descendingOrder
+        : !this.$store.state.descendingOrder;
+      const loadedItem = await loadImagesOrderedBySelectedCritera(
         this.$store.state.sortingCriteria,
-        this.$store.state.descendingOrder,
+        descending,
         1,
         this.$store.state.currentImage
       );
-      const nextImage = next[0];
-      this.$store.commit("setCurrentImage", nextImage);
+      const image = loadedItem[0];
+      this.$store.commit("setCurrentImage", image);
       const imageURL = await this.storageRef
-        .child("val2017/" + nextImage.file_name)
+        .child("val2017/" + image.file_name)
         .getDownloadURL();
       this.$router.replace({
         name: "image",
         params: {
-          id: nextImage.id,
+          id: image.id,
           source: imageURL
         }
       });
