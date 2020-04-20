@@ -8,6 +8,7 @@ interface IAnnotation {
   iscrowd: number;
   segmentation: Array<number>;
   bbox: Array<number>;
+  score?: number;
 }
 interface ICategory {
   id: number;
@@ -44,7 +45,7 @@ export class DatasetDatabase extends Dexie {
       annotations: "id, image_id, area, category_id",
       categories: "id, supercategory",
       images: "id, annotationsArea",
-      licenses: "id"
+      licenses: "id",
     });
     this.annotations = this.table("annotations");
     this.categories = this.table("categories");
@@ -126,12 +127,12 @@ async function getImagesFromOrderedAnnotations(
     let annotationOffset: number;
     if (descending) {
       annotationOffset = Math.max(
-        ...offset.annotations.map(item => item.area),
+        ...offset.annotations.map((item) => item.area),
         0
       );
     } else {
       annotationOffset = Math.min(
-        ...offset.annotations.map(item => item.area),
+        ...offset.annotations.map((item) => item.area),
         0
       );
     }
