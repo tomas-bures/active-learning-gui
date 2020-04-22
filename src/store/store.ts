@@ -42,7 +42,7 @@ export class DatasetDatabase extends Dexie {
   constructor() {
     super("DatasetDatabase");
     this.version(1).stores({
-      annotations: "id, image_id, area, category_id",
+      annotations: "id, image_id, area, category_id, score",
       categories: "id, supercategory",
       images: "id, annotationsArea",
       licenses: "id",
@@ -81,7 +81,8 @@ export class Image implements IImage {
 
 export let database = new DatasetDatabase();
 
-async function orderAnnotationsByArea(
+function orderAnnotationsBy(
+  orderBy: string,
   descending: boolean,
   limit: number,
   offset?: number
@@ -89,26 +90,26 @@ async function orderAnnotationsByArea(
   if (offset === undefined) {
     if (descending) {
       return database.annotations
-        .orderBy("area")
+        .orderBy(orderBy)
         .reverse()
         .limit(limit)
         .toArray();
     }
     return database.annotations
-      .orderBy("area")
+      .orderBy(orderBy)
       .limit(limit)
       .toArray();
   } else {
     if (descending) {
       return database.annotations
-        .where("area")
+        .where(orderBy)
         .below(offset)
         .reverse()
         .limit(limit)
         .toArray();
     }
     return database.annotations
-      .where("area")
+      .where(orderBy)
       .above(offset)
       .limit(limit)
       .toArray();
@@ -116,27 +117,31 @@ async function orderAnnotationsByArea(
 }
 
 async function getImagesFromOrderedAnnotations(
+  orderBy: string,
   descending: boolean,
   limit: number,
   offset?: IImage
 ) {
   let annotations = [];
   if (offset === undefined) {
-    annotations = await orderAnnotationsByArea(descending, limit);
+    annotations = await orderAnnotationsBy(orderBy, descending, limit);
   } else {
     let annotationOffset: number;
     if (descending) {
       annotationOffset = Math.max(
-        ...offset.annotations.map((item) => item.area),
+        //@ts-ignore
+        ...offset.annotations.map((item) => item[orderBy]),
         0
       );
     } else {
       annotationOffset = Math.min(
-        ...offset.annotations.map((item) => item.area),
+        //@ts-ignore
+        ...offset.annotations.map((item) => item[orderBy]),
         0
       );
     }
-    annotations = await orderAnnotationsByArea(
+    annotations = await orderAnnotationsBy(
+      orderBy,
       descending,
       limit,
       annotationOffset
@@ -191,12 +196,22 @@ export function loadImagesOrderedBySelectedCritera(
 ) {
   switch (sortBy) {
     case 0:
-      return getImagesFromOrderedAnnotations(descending, pageSize, offset);
+      return getImagesFromOrderedAnnotations(
+        "area",
+        descending,
+        pageSize,
+        offset
+      );
     case 1:
       return getImagesOrderedByAnnotationsArea(descending, pageSize, offset);
+    case 2:
+      return getImagesFromOrderedAnnotations(
+        "score",
+        descending,
+        pageSize,
+        offset
+      );
     case 3:
-      break;
-    case 4:
       break;
     default:
       break;
