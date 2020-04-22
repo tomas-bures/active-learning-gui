@@ -15,6 +15,7 @@
                   <th class="text-left">ID</th>
                   <th class="text-left">Category</th>
                   <th class="text-left">Area</th>
+                  <th class="text-left">Score</th>
                 </tr>
               </thead>
               <tbody>
@@ -27,6 +28,7 @@
                   <td>{{ item.id }}</td>
                   <td>{{ item.category }}</td>
                   <td>{{ item.area }}</td>
+                  <td>{{ item.score }}</td>
                 </tr>
               </tbody>
             </v-simple-table>
@@ -67,7 +69,8 @@ export default {
           category: this.annotationCategories.find(
             category => category.id == this.annotations[i].category_id
           ).name,
-          area: this.annotations[i].area
+          area: this.annotations[i].area.toFixed(3),
+          score: this.annotations[i].score
         };
         data.push(item);
       }
