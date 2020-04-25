@@ -116,13 +116,31 @@ function orderAnnotationsBy(
   }
 }
 
-async function orderAnnotationsByScoreDistance() {
-  const median = 0.5;
+// Ordered annotations stay here to speed up loading of next pages
+let orderedAnnotations: Array<IAnnotation>;
+let orderedAnnotationsIndex = 0;
+let order = false;
+
+export function reinitializeOrder() {
+  orderedAnnotationsIndex = 0;
+}
+
+async function orderAnnotationsByScoreDistance(
+  descending: boolean,
+  median: number
+) {
   let annotations = await database.annotations.toArray();
-  annotations.sort((a, b) => {
-    //@ts-ignore
-    return Math.abs(a.score - median) - Math.abs(b.score - median);
-  });
+  if (descending) {
+    annotations.sort((a, b) => {
+      //@ts-ignore
+      return Math.abs(b.score - median) - Math.abs(a.score - median);
+    });
+  } else {
+    annotations.sort((a, b) => {
+      //@ts-ignore
+      return Math.abs(a.score - median) - Math.abs(b.score - median);
+    });
+  }
   return annotations;
 }
 
@@ -130,11 +148,21 @@ async function getImagesFromAnnotationsOrderedByScoreDistance(
   descending: boolean,
   limit: number
 ) {
-  const annotations = await orderAnnotationsByScoreDistance();
-  let images = [];
-  for (let i = 0; i < limit; i++) {
-    images.push(await database.images.get(annotations[i].image_id));
+  const median = 0.5;
+  if (orderedAnnotations === undefined || order != descending) {
+    orderedAnnotations = await orderAnnotationsByScoreDistance(
+      descending,
+      median
+    );
+    order = descending;
   }
+  let images = [];
+  let newOrderedAnnotationsIndex = orderedAnnotationsIndex + limit;
+  for (let i = orderedAnnotationsIndex; i < newOrderedAnnotationsIndex; i++) {
+    images.push(await database.images.get(orderedAnnotations[i].image_id));
+  }
+  orderedAnnotationsIndex = newOrderedAnnotationsIndex;
+  console.log();
   return images;
 }
 
