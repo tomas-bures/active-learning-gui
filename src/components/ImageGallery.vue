@@ -20,6 +20,9 @@
           </v-flex>
         </v-layout>
       </div>
+      <v-overlay :value="overlay">
+        <v-progress-circular indeterminate size="64"></v-progress-circular>
+      </v-overlay>
     </v-container>
     <v-bottom-navigation app height="180" dark>
       <v-container fluid>
@@ -59,7 +62,11 @@
 <script>
 import Picture from "./Picture.vue";
 import { FirebaseStorage } from "@/firebase/storage";
-import { database, loadImagesOrderedBySelectedCritera } from "@/store/store";
+import {
+  database,
+  loadImagesOrderedBySelectedCritera,
+  reinitializeOrder
+} from "@/store/store";
 
 export default {
   name: "image-gallery",
@@ -77,6 +84,7 @@ export default {
     pageSize: 20,
     search: "",
     tablePage: 1,
+    overlay: false,
     headers: [
       {
         text: "ID",
@@ -134,6 +142,9 @@ export default {
   mounted() {
     this.loadFirstPage();
   },
+  destroyed() {
+    reinitializeOrder();
+  },
   methods: {
     async openAnnotator(img) {
       const categories = await database.categories.orderBy("id").toArray();
@@ -152,11 +163,13 @@ export default {
     },
     async loadFirstPage() {
       this.busy = true;
+      this.overlay = true;
       this.page = await loadImagesOrderedBySelectedCritera(
         this.sortBy,
         this.descending,
         this.pageSize
       );
+      this.overlay = false;
       //For some reason cannot use for..of -> produces Uncaught exception: this.page[Symbol.iterator] is not a function
       for (let i = 0; i < this.page.length; i++) {
         let item = this.page[i];
