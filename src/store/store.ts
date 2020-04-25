@@ -116,6 +116,28 @@ function orderAnnotationsBy(
   }
 }
 
+async function orderAnnotationsByScoreDistance() {
+  const median = 0.5;
+  let annotations = await database.annotations.toArray();
+  annotations.sort((a, b) => {
+    //@ts-ignore
+    return Math.abs(a.score - median) - Math.abs(b.score - median);
+  });
+  return annotations;
+}
+
+async function getImagesFromAnnotationsOrderedByScoreDistance(
+  descending: boolean,
+  limit: number
+) {
+  const annotations = await orderAnnotationsByScoreDistance();
+  let images = [];
+  for (let i = 0; i < limit; i++) {
+    images.push(await database.images.get(annotations[i].image_id));
+  }
+  return images;
+}
+
 async function getImagesFromOrderedAnnotations(
   orderBy: string,
   descending: boolean,
@@ -212,7 +234,10 @@ export function loadImagesOrderedBySelectedCritera(
         offset
       );
     case 3:
-      break;
+      return getImagesFromAnnotationsOrderedByScoreDistance(
+        descending,
+        pageSize
+      );
     default:
       break;
   }
