@@ -5,16 +5,12 @@
         class="my-5 mx-5"
         multiple
         label="File input"
+        accept="image/*"
         @change="readFiles"
       ></v-file-input>
     </v-card>
     <v-card :loading="loading">
-      <v-file-input
-        class="my-5 mx-5"
-        multiple
-        label="JSON input"
-        @change="readJSON"
-      ></v-file-input>
+      <v-file-input class="my-5 mx-5" multiple label="JSON input" @change="readJSON"></v-file-input>
     </v-card>
     <v-overlay :value="overlay">
       <v-progress-circular indeterminate size="64"></v-progress-circular>
@@ -23,7 +19,6 @@
 </template>
 
 <script>
-import JSZip from "jszip";
 import { FirebaseStorage } from "@/firebase/storage";
 import { database } from "@/store/store";
 
@@ -33,6 +28,9 @@ export default {
     storageRef: FirebaseStorage.ref(),
     overlay: false
   }),
+  mounted() {
+    this.test();
+  },
   methods: {
     readFiles(e) {
       this.loading = true;
@@ -67,9 +65,10 @@ export default {
         database.images,
         database.licenses,
         async function() {
-          fileContent.annotations.forEach(annotation =>
-            database.annotations.add(annotation)
-          );
+          fileContent.annotations.forEach(annotation => {
+            annotation.score = Math.random().toFixed(3);
+            database.annotations.add(annotation);
+          });
           fileContent.categories.forEach(category =>
             database.categories.add(category)
           );
