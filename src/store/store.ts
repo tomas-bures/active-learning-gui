@@ -85,35 +85,21 @@ function orderAnnotationsBy(
   orderBy: string,
   descending: boolean,
   limit: number,
-  offset?: number
+  offset: number
 ) {
-  if (offset === undefined) {
-    if (descending) {
-      return database.annotations
-        .orderBy(orderBy)
-        .reverse()
-        .limit(limit)
-        .toArray();
-    }
+  if (descending) {
     return database.annotations
       .orderBy(orderBy)
-      .limit(limit)
-      .toArray();
-  } else {
-    if (descending) {
-      return database.annotations
-        .where(orderBy)
-        .below(offset)
-        .reverse()
-        .limit(limit)
-        .toArray();
-    }
-    return database.annotations
-      .where(orderBy)
-      .above(offset)
+      .reverse()
+      .offset(offset)
       .limit(limit)
       .toArray();
   }
+  return database.annotations
+    .orderBy(orderBy)
+    .offset(offset)
+    .limit(limit)
+    .toArray();
 }
 
 // Ordered annotations stay here to speed up loading of next pages
@@ -162,7 +148,6 @@ async function getImagesFromAnnotationsOrderedByScoreDistance(
     images.push(await database.images.get(orderedAnnotations[i].image_id));
   }
   orderedAnnotationsIndex = newOrderedAnnotationsIndex;
-  console.log();
   return images;
 }
 
@@ -170,33 +155,14 @@ async function getImagesFromOrderedAnnotations(
   orderBy: string,
   descending: boolean,
   limit: number,
-  offset?: IImage
+  offset: number
 ) {
-  let annotations = [];
-  if (offset === undefined) {
-    annotations = await orderAnnotationsBy(orderBy, descending, limit);
-  } else {
-    let annotationOffset: number;
-    if (descending) {
-      annotationOffset = Math.max(
-        //@ts-ignore
-        ...offset.annotations.map((item) => item[orderBy]),
-        0
-      );
-    } else {
-      annotationOffset = Math.min(
-        //@ts-ignore
-        ...offset.annotations.map((item) => item[orderBy]),
-        0
-      );
-    }
-    annotations = await orderAnnotationsBy(
-      orderBy,
-      descending,
-      limit,
-      annotationOffset
-    );
-  }
+  const annotations = await orderAnnotationsBy(
+    orderBy,
+    descending,
+    limit,
+    offset
+  );
   let images = [];
   for (let i = 0; i < annotations.length; i++) {
     images.push(await database.images.get(annotations[i].image_id));
@@ -207,42 +173,28 @@ async function getImagesFromOrderedAnnotations(
 async function getImagesOrderedByAnnotationsArea(
   descending: boolean,
   limit: number,
-  offset?: IImage
+  offset: number
 ) {
-  if (offset === undefined) {
-    if (descending) {
-      return database.images
-        .orderBy("annotationsArea")
-        .reverse()
-        .limit(limit)
-        .toArray();
-    }
+  if (descending) {
     return database.images
       .orderBy("annotationsArea")
-      .limit(limit)
-      .toArray();
-  } else {
-    if (descending) {
-      return database.images
-        .where("annotationsArea")
-        .below(offset.annotationsArea)
-        .reverse()
-        .limit(limit)
-        .toArray();
-    }
-    return database.images
-      .where("annotationsArea")
-      .above(offset.annotationsArea)
+      .reverse()
+      .offset(offset)
       .limit(limit)
       .toArray();
   }
+  return database.images
+    .orderBy("annotationsArea")
+    .offset(offset)
+    .limit(limit)
+    .toArray();
 }
 
 export function loadImagesOrderedBySelectedCritera(
   sortBy: number,
   descending: boolean,
   pageSize: number,
-  offset?: IImage
+  offset: number = 0
 ) {
   switch (sortBy) {
     case 0:
