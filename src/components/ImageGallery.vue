@@ -40,16 +40,14 @@
           <v-col cols="8">
             <v-data-table
               :headers="headers"
-              :items="tableData"
-              show-expand
-              single-expand
               :search="search"
               :page.sync="tablePage"
               :items-per-page.sync="pageSize"
               dense
+              hide-default-footer
             >
               <template v-slot:expanded-item="{ headers }">
-                <v-data-table :headers="headers" :items="tableData"></v-data-table>
+                <v-data-table :headers="headers"></v-data-table>
               </template>
             </v-data-table>
           </v-col>
@@ -189,12 +187,12 @@ export default {
       if (this.page.length < this.pageSize) return;
       this.busy = true;
       this.tablePage++;
-      const lastPage = this.page[this.page.length - 1];
+      const offset = this.images.length;
       this.page = await loadImagesOrderedBySelectedCritera(
         this.sortBy,
         this.descending,
         this.pageSize,
-        lastPage
+        offset
       );
       for (let i = 0; i < this.page.length; i++) {
         let item = this.page[i];
@@ -219,9 +217,13 @@ export default {
   watch: {
     sortBy: function() {
       this.reloadImages();
+      // Needed to rerender images. Without it images sometimes stay there, even though sorting order have been changed
+      this.$forceUpdate();
     },
     descending: function() {
       this.reloadImages();
+      // Needed to rerender images. Without it images sometimes stay there, even though sorting order have been changed
+      this.$forceUpdate();
     }
   }
 };
