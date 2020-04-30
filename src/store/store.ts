@@ -104,12 +104,7 @@ function orderAnnotationsBy(
 
 // Ordered annotations stay here to speed up loading of next pages
 let orderedAnnotations: Array<IAnnotation>;
-let orderedAnnotationsIndex = 0;
 let order = false;
-
-export function reinitializeOrder() {
-  orderedAnnotationsIndex = 0;
-}
 
 async function orderAnnotationsByScoreDistance(
   descending: boolean,
@@ -132,7 +127,8 @@ async function orderAnnotationsByScoreDistance(
 
 async function getImagesFromAnnotationsOrderedByScoreDistance(
   descending: boolean,
-  limit: number
+  limit: number,
+  offset: number
 ) {
   const median = 0.5;
   if (orderedAnnotations === undefined || order != descending) {
@@ -143,11 +139,9 @@ async function getImagesFromAnnotationsOrderedByScoreDistance(
     order = descending;
   }
   let images = [];
-  let newOrderedAnnotationsIndex = orderedAnnotationsIndex + limit;
-  for (let i = orderedAnnotationsIndex; i < newOrderedAnnotationsIndex; i++) {
+  for (let i = offset; i < offset + limit; i++) {
     images.push(await database.images.get(orderedAnnotations[i].image_id));
   }
-  orderedAnnotationsIndex = newOrderedAnnotationsIndex;
   return images;
 }
 
@@ -216,7 +210,8 @@ export function loadImagesOrderedBySelectedCritera(
     case 3:
       return getImagesFromAnnotationsOrderedByScoreDistance(
         descending,
-        pageSize
+        pageSize,
+        offset
       );
     default:
       break;
