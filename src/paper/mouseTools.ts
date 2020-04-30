@@ -11,7 +11,7 @@ let hitOptions = {
   segments: true,
   stroke: true,
   fill: true,
-  tolerance: 5
+  tolerance: 5,
 };
 
 // Need to specify
@@ -23,6 +23,12 @@ function onMouseDown(event: any) {
   segment = path = null;
   let hitResult = paper.project.hitTest(event.point, hitOptions);
   if (!hitResult) {
+    return;
+  }
+  if (event.modifiers.shift) {
+    if (hitResult.type == "segment") {
+      hitResult.segment.remove();
+    }
     return;
   }
   if (hitResult) {
