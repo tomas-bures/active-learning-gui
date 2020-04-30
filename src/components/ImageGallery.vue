@@ -41,15 +41,11 @@
             <v-data-table
               :headers="headers"
               :search="search"
-              :page.sync="tablePage"
-              :items-per-page.sync="pageSize"
+              :items="tableData"
               dense
               hide-default-footer
-            >
-              <template v-slot:expanded-item="{ headers }">
-                <v-data-table :headers="headers"></v-data-table>
-              </template>
-            </v-data-table>
+              height="150"
+            ></v-data-table>
           </v-col>
         </v-row>
       </v-container>
