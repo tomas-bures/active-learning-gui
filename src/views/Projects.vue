@@ -28,9 +28,6 @@ export default {
     storageRef: FirebaseStorage.ref(),
     overlay: false
   }),
-  mounted() {
-    this.test();
-  },
   methods: {
     readFiles(e) {
       this.loading = true;
