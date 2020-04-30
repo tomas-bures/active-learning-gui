@@ -51,14 +51,15 @@ export default {
       this.load(true);
     },
     async load(next) {
-      const descending = next
-        ? this.$store.state.descendingOrder
-        : !this.$store.state.descendingOrder;
+      const index = next
+        ? this.$store.state.currentImageIndex + 1
+        : this.$store.state.currentImageIndex - 1;
+      const descending = this.$store.state.descendingOrder;
       const loadedItem = await loadImagesOrderedBySelectedCritera(
         this.$store.state.sortingCriteria,
         descending,
         1,
-        this.$store.state.currentImage
+        index
       );
       const image = loadedItem[0];
       this.$store.commit("setCurrentImage", image);
@@ -72,6 +73,7 @@ export default {
           source: imageURL
         }
       });
+      this.$store.commit("setCurrentImageIndex", index);
       this.$refs.test.recenter();
     }
   }
