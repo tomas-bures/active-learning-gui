@@ -8,7 +8,8 @@ export default new Vuex.Store({
     categories: [],
     currentImage: null,
     sortingCriteria: 1,
-    descendingOrder: false
+    descendingOrder: false,
+    currentImageIndex: null,
   },
   mutations: {
     setCategories(state, categories) {
@@ -22,8 +23,11 @@ export default new Vuex.Store({
     },
     switchDescendingOrder(state) {
       state.descendingOrder = !state.descendingOrder;
-    }
+    },
+    setCurrentImageIndex(state, index) {
+      state.currentImageIndex = index;
+    },
   },
   actions: {},
-  modules: {}
+  modules: {},
 });

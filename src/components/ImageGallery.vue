@@ -5,9 +5,9 @@
         <v-layout row md5 justify-space-around>
           <v-flex
             class="my-4"
-            v-for="image in images"
+            v-for="(image, index) in images"
             :key="image.key"
-            @click="openAnnotator(image)"
+            @click="openAnnotator(image, index)"
           >
             <Picture
               :size="size"
@@ -140,14 +140,13 @@ export default {
   mounted() {
     this.loadFirstPage();
   },
-  destroyed() {
-    reinitializeOrder();
-  },
   methods: {
-    async openAnnotator(img) {
+    async openAnnotator(img, index) {
+      //console.log(this.images[index].image.id);
       const categories = await database.categories.orderBy("id").toArray();
       this.$store.commit("setCategories", categories);
       this.$store.commit("setCurrentImage", img.image);
+      this.$store.commit("setCurrentImageIndex", index);
       this.$router.push({
         name: "image",
         params: {
