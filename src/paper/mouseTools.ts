@@ -17,7 +17,6 @@ let hitOptions = {
 // Need to specify
 let path: any;
 let segment: any;
-let movePath = false;
 
 function onMouseDown(event: any) {
   segment = path = null;
@@ -39,10 +38,6 @@ function onMouseDown(event: any) {
       let location = hitResult.location;
       segment = path.insert(location.index + 1, event.point);
     }
-  }
-  movePath = hitResult.type == "fill";
-  if (movePath) {
-    paper.project.activeLayer.addChild(hitResult.item);
   }
 }
 
