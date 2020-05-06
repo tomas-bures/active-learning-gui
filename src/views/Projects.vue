@@ -12,6 +12,7 @@
     <v-card :loading="loading">
       <v-file-input class="my-5 mx-5" multiple label="JSON input" @change="readJSON"></v-file-input>
     </v-card>
+    <v-btn @click="exportJSON">EXPORT</v-btn>
     <v-overlay :value="overlay">
       <v-progress-circular indeterminate size="64"></v-progress-circular>
     </v-overlay>
@@ -89,6 +90,48 @@ export default {
       );
       this.overlay = false;
       alert("JSON file succesfully imported");
+    },
+    async exportJSON() {
+      let databaseContent = new Object();
+      const exclude = (key, value) => {
+        if (key != "annotations" || key != "annotationsArea") {
+          return value;
+        }
+      };
+      for (let i = 0; i < database.tables.length; i++) {
+        const table = database.tables[i];
+        const tableContent = await database[table.name].toArray();
+        databaseContent[table.name] = tableContent;
+      }
+      const stringifiedDatabase = JSON.stringify(
+        databaseContent,
+        exclude,
+        "\t"
+      );
+      const blob = new Blob([stringifiedDatabase], { type: "text/plain" });
+      const e = document.createEvent("MouseEvents"),
+        a = document.createElement("a");
+      a.download = "test.json";
+      a.href = window.URL.createObjectURL(blob);
+      a.dataset.downloadurl = ["text/json", a.download, a.href].join(":");
+      e.initEvent(
+        "click",
+        true,
+        false,
+        window,
+        0,
+        0,
+        0,
+        0,
+        0,
+        false,
+        false,
+        false,
+        false,
+        0,
+        null
+      );
+      a.dispatchEvent(e);
     }
   }
 };
