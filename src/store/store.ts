@@ -21,8 +21,8 @@ interface IImage {
   date_captured?: string;
   file_name: string;
   flickr_url?: string;
-  height: number;
-  width: number;
+  height?: number;
+  width?: number;
   licence?: number;
   image_annotations: Array<IAnnotation>;
   annotationsArea: number;
