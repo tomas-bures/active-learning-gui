@@ -108,8 +108,8 @@ export default {
       this.images.forEach(item => {
         let dataItem = {
           id: item.image.id,
-          annotation_id: item.image.annotations[0].id,
-          annotation_bbox: item.image.annotations[0].bbox,
+          annotation_id: item.image.image_annotations[0].id,
+          annotation_bbox: item.image.image_annotations[0].bbox,
           annotations_area: item.image.annotationsArea
         };
         data.push(dataItem);

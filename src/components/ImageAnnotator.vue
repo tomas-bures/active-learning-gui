@@ -56,7 +56,7 @@ export default {
       return this.$route.params.source;
     },
     annotations: function() {
-      return this.$store.state.currentImage.annotations;
+      return this.$store.state.currentImage.image_annotations;
     },
     annotationCategories: function() {
       return this.$store.state.categories;

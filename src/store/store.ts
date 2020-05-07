@@ -24,7 +24,7 @@ interface IImage {
   height: number;
   width: number;
   licence?: number;
-  annotations: Array<IAnnotation>;
+  image_annotations: Array<IAnnotation>;
   annotationsArea: number;
 }
 interface ILicenses {
@@ -60,7 +60,7 @@ export class Image implements IImage {
   file_name: string;
   height: number;
   width: number;
-  annotations: Array<IAnnotation>;
+  image_annotations: Array<IAnnotation>;
   annotationsArea: number;
   constructor(
     id: number,
@@ -74,7 +74,7 @@ export class Image implements IImage {
     this.file_name = file_name;
     this.height = height;
     this.width = width;
-    this.annotations = annotations;
+    this.image_annotations = annotations;
     this.annotationsArea = annotationsArea;
   }
 }

@@ -71,12 +71,12 @@ export default {
             database.categories.add(category)
           );
           for (let image of fileContent.images) {
-            image.annotations = await database.annotations
+            image.image_annotations = await database.annotations
               .where("image_id")
               .equals(image.id)
               .toArray();
-            if (image.annotations.length > 0) {
-              image.annotationsArea = image.annotations.reduce(
+            if (image.image_annotations.length > 0) {
+              image.annotationsArea = image.image_annotations.reduce(
                 (acc, annotation) => acc + annotation.area,
                 0
               );
@@ -94,7 +94,7 @@ export default {
     async exportJSON() {
       let databaseContent = new Object();
       const exclude = (key, value) => {
-        if (key != "annotations" || key != "annotationsArea") {
+        if (key != "image_annotations" && key != "annotationsArea") {
           return value;
         }
       };
@@ -103,11 +103,7 @@ export default {
         const tableContent = await database[table.name].toArray();
         databaseContent[table.name] = tableContent;
       }
-      const stringifiedDatabase = JSON.stringify(
-        databaseContent,
-        exclude,
-        "\t"
-      );
+      const stringifiedDatabase = JSON.stringify(databaseContent, exclude);
       const blob = new Blob([stringifiedDatabase], { type: "text/plain" });
       const e = document.createEvent("MouseEvents"),
         a = document.createElement("a");
