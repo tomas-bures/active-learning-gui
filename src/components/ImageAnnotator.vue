@@ -44,6 +44,7 @@ import paper from "paper";
 import "../paper/mouseTools";
 import { drawPolygon } from "../paper/polygon";
 import { categoryColors } from "../paper/categoryColors";
+import { database } from "../store/store";
 
 export default {
   data: () => ({
@@ -91,6 +92,35 @@ export default {
     window.removeEventListener("wheel", this.zoom);
   },
   methods: {
+    async saveChanges() {
+      for (let i = 0; i < this.annotations.length; i++) {
+        const annotation = this.annotations[i];
+        const newSegments = this.serializePolygonSegments(
+          this.annotationPolygons[i]
+        );
+        const test = await database.annotations.update(annotation.id, {
+          segmentation: [newSegments]
+        });
+      }
+      const image = this.$store.state.currentImage;
+      const annotations = await database.annotations
+        .where("image_id")
+        .equals(image.id)
+        .toArray();
+      database.images.update(image.id, { image_annotations: annotations });
+    },
+    serializePolygonSegments(polygon) {
+      const segments = polygon.segments;
+      let serializedSegments = [];
+      for (let i = 0; i < segments.length; i++) {
+        const segment = segments[i];
+        const x = segment._point._x - this.raster.bounds.topLeft.x;
+        const y = segment._point._y - this.raster.bounds.topLeft.y;
+        serializedSegments.push(+(Math.round(x + "e+2") + "e-2"));
+        serializedSegments.push(+(Math.round(y + "e+2") + "e-2"));
+      }
+      return serializedSegments;
+    },
     rotateLeft() {
       view.rotate(-90);
     },
@@ -100,6 +130,7 @@ export default {
     drawImage() {
       this.raster = new paper.Raster("image");
       this.raster.position = view.center;
+      // No mouse interactions
       this.raster.locked = true;
     },
     drawAnnotationsPolygons() {
