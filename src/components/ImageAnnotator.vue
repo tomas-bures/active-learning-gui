@@ -93,21 +93,25 @@ export default {
   },
   methods: {
     async saveChanges() {
-      for (let i = 0; i < this.annotations.length; i++) {
+      for (let i = 0; i < this.annotationPolygons.length; i++) {
         const annotation = this.annotations[i];
         const newSegments = this.serializePolygonSegments(
           this.annotationPolygons[i]
         );
-        const test = await database.annotations.update(annotation.id, {
+        await database.annotations.update(annotation.id, {
           segmentation: [newSegments]
         });
       }
-      const image = this.$store.state.currentImage;
+      let image = this.$store.state.currentImage;
       const annotations = await database.annotations
         .where("image_id")
         .equals(image.id)
         .toArray();
-      database.images.update(image.id, { image_annotations: annotations });
+      await database.images.update(image.id, {
+        image_annotations: annotations
+      });
+      image = await database.images.get(this.$store.state.currentImage.id);
+      this.$store.commit("setCurrentImage", image);
     },
     serializePolygonSegments(polygon) {
       const segments = polygon.segments;
