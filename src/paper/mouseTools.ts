@@ -23,7 +23,7 @@ let selectedCorner: any;
 let oppositeCorner: any;
 let rotate: boolean;
 
-function selectItem(item: any) {
+export function selectItem(item: any) {
   if (selectedItem != null) {
     selectedItem.bounds.selected = false;
   }

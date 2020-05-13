@@ -24,6 +24,7 @@
                   :key="item.id"
                   @mouseenter="selectAnnotationPolygonOnTableItemHover"
                   @mouseleave="deselectAnnotationPolygonOnTableItemHover"
+                  @click="selectAnnotation"
                 >
                   <td>{{ item.id }}</td>
                   <td>{{ item.category }}</td>
@@ -45,12 +46,14 @@ import "../paper/mouseTools";
 import { drawPolygon } from "../paper/polygon";
 import { categoryColors } from "../paper/categoryColors";
 import { database } from "../store/store";
+import { selectItem } from "../paper/mouseTools";
 
 export default {
   data: () => ({
     raster: new paper.Raster("image"),
     factor: 1.05,
-    annotationPolygons: []
+    annotationPolygons: [],
+    tableIndex: 0
   }),
   computed: {
     source: function() {
@@ -92,6 +95,10 @@ export default {
     window.removeEventListener("wheel", this.zoom);
   },
   methods: {
+    selectAnnotation(event) {
+      const polygon = this.annotationPolygons[this.tableIndex];
+      selectItem(polygon);
+    },
     async saveChanges() {
       for (let i = 0; i < this.annotationPolygons.length; i++) {
         const annotation = this.annotations[i];
@@ -185,7 +192,8 @@ export default {
       paper.view.center = view.center.add(offset);
     },
     selectAnnotationPolygonOnTableItemHover(event) {
-      this.annotationPolygons[event.target.rowIndex - 1].selected = true;
+      this.tableIndex = event.target.rowIndex - 1;
+      this.annotationPolygons[this.tableIndex].selected = true;
     },
     deselectAnnotationPolygonOnTableItemHover(event) {
       this.annotationPolygons[event.target.rowIndex - 1].selected = false;
