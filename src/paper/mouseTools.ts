@@ -46,6 +46,7 @@ function onMouseDown(event: any) {
   }
   if (hitResult) {
     path = hitResult.item;
+    selectItem(path);
     if (hitResult.type == "segment") {
       segment = hitResult.segment;
     } else if (hitResult.type == "stroke") {
@@ -68,7 +69,6 @@ function onMouseDown(event: any) {
         oppositeCorner = selectedItem.bounds.topLeft;
       }
     }
-    selectItem(hitResult.item);
   }
 }
 
