@@ -40,11 +40,12 @@
           <v-col cols="8">
             <v-data-table
               :headers="headers"
-              :search="search"
               :items="tableData"
+              :items-per-page="tableDataLength"
               dense
               hide-default-footer
               height="150"
+              @click:row="test"
             ></v-data-table>
           </v-col>
         </v-row>
@@ -56,11 +57,7 @@
 <script>
 import Picture from "./Picture.vue";
 import { FirebaseStorage } from "@/firebase/storage";
-import {
-  database,
-  loadImagesOrderedBySelectedCritera,
-  reinitializeOrder
-} from "@/store/store";
+import { database, loadImagesOrderedBySelectedCritera } from "@/store/store";
 
 export default {
   name: "image-gallery",
@@ -76,7 +73,6 @@ export default {
     busy: false,
     page: [],
     pageSize: 20,
-    search: "",
     tablePage: 1,
     overlay: false,
     headers: [
@@ -86,14 +82,14 @@ export default {
         value: "id"
       },
       {
-        text: "Annotation ID",
+        text: "Annotations",
         sortable: false,
-        value: "annotation_id"
+        value: "annotation_count"
       },
       {
-        text: "Annotation BBox",
+        text: "Average score",
         sortable: false,
-        value: "annotation_bbox"
+        value: "average_score"
       },
       {
         text: "Annotations area",
@@ -108,13 +104,20 @@ export default {
       this.images.forEach(item => {
         let dataItem = {
           id: item.image.id,
-          annotation_id: item.image.image_annotations[0].id,
-          annotation_bbox: item.image.image_annotations[0].bbox,
+          annotation_count: item.image.image_annotations.length,
+          average_score:
+            item.image.image_annotations.reduce(
+              (accumulator, current) => (accumulator += current.score),
+              0
+            ) / item.image.image_annotations.length,
           annotations_area: item.image.annotationsArea
         };
         data.push(dataItem);
       });
       return data;
+    },
+    tableDataLength: function() {
+      return this.tableData.length;
     },
     sortBy: {
       get() {
@@ -137,8 +140,12 @@ export default {
     this.loadFirstPage();
   },
   methods: {
+    test(event) {
+      const image = this.images.find(item => item.image.id == event.id);
+      const index = this.images.findIndex(item => item.image.id == event.id);
+      this.openAnnotator(image, index);
+    },
     async openAnnotator(img, index) {
-      //console.log(this.images[index].image.id);
       const categories = await database.categories.orderBy("id").toArray();
       this.$store.commit("setCategories", categories);
       this.$store.commit("setCurrentImage", img.image);
@@ -152,7 +159,12 @@ export default {
       });
     },
     visibilityChanged(isVisible, entry, image) {
-      this.visibleImages.set(image.id, isVisible);
+      this.visibleImages.set(image.image, isVisible);
+      let visible = [];
+      this.visibleImages.forEach((item, key) => {
+        if (item) visible.push(key);
+      });
+      return visible;
     },
     async loadFirstPage() {
       this.busy = true;
