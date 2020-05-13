@@ -28,6 +28,7 @@ export function selectItem(item: any) {
     selectedItem.bounds.selected = false;
   }
   selectedItem = item;
+  selectedItem.bringToFront();
   selectedItem.bounds.selected = true;
 }
 
