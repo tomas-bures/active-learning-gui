@@ -90,6 +90,7 @@ export default {
       const index = next
         ? this.$store.state.currentImageIndex + 1
         : this.$store.state.currentImageIndex - 1;
+      this.$store.commit("setCurrentImageIndex", index);
       const descending = this.$store.state.descendingOrder;
       const loadedItem = await loadImagesOrderedBySelectedCritera(
         this.$store.state.sortingCriteria,
@@ -109,8 +110,6 @@ export default {
           source: imageURL
         }
       });
-      this.$store.commit("setCurrentImageIndex", index);
-      this.$refs.test.recenter();
     }
   }
 };
