@@ -1,5 +1,16 @@
 import paper from "paper";
 
+export function deleteItem() {
+  if (selectedItem) {
+    selectedItem.data.deleted = true;
+    selectedItem.remove();
+    selectedItem = null;
+    return true;
+  } else {
+    return false;
+  }
+}
+
 function onMouseMove(event: any) {
   paper.project.activeLayer.selected = false;
   if (event.item) {

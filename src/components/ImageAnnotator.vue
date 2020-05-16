@@ -46,13 +46,14 @@ import "../paper/mouseTools";
 import { drawPolygon } from "../paper/polygon";
 import { categoryColors } from "../paper/categoryColors";
 import { database } from "../store/store";
-import { selectItem } from "../paper/mouseTools";
+import { selectItem, deleteItem } from "../paper/mouseTools";
 
 export default {
   data: () => ({
     raster: new paper.Raster("image"),
     factor: 1.05,
     annotationPolygons: [],
+    annotationsToDelete: [],
     tableIndex: 0
   }),
   computed: {
@@ -84,6 +85,7 @@ export default {
   created() {
     paper.install(window);
     window.addEventListener("wheel", this.zoom);
+    window.addEventListener("keyup", this.keyPressed);
   },
   mounted() {
     paper.setup("canvas");
@@ -93,13 +95,36 @@ export default {
   destroyed() {
     // Need to remove listener, otherwise it would still fire after user exited this component
     window.removeEventListener("wheel", this.zoom);
+    window.removeEventListener("keyup", this.keyPressed);
   },
   methods: {
+    keyPressed(event) {
+      if (event.key == "Delete") {
+        this.deleteAnnotation();
+      }
+    },
+    deleteAnnotation() {
+      const deleted = deleteItem();
+      if (deleted) {
+        this.annotationPolygons.forEach(polygon => {
+          if (polygon.data.deleted) {
+            this.annotationsToDelete.push(polygon.data.id);
+          }
+        });
+        this.annotationPolygons = this.annotationPolygons.filter(
+          polygon => !polygon.data.deleted
+        );
+      }
+    },
     selectAnnotation(event) {
       const polygon = this.annotationPolygons[this.tableIndex];
       selectItem(polygon);
     },
     async saveChanges() {
+      for (let i = 0; i < this.annotationsToDelete.length; i++) {
+        await database.annotations.delete(this.annotationsToDelete[i]);
+      }
+      await this.modifyImageObject();
       for (let i = 0; i < this.annotationPolygons.length; i++) {
         const annotation = this.annotations[i];
         const newSegments = this.serializePolygonSegments(
@@ -109,6 +134,9 @@ export default {
           segmentation: [newSegments]
         });
       }
+      this.modifyImageObject();
+    },
+    async modifyImageObject() {
       let image = this.$store.state.currentImage;
       const annotations = await database.annotations
         .where("image_id")
@@ -153,7 +181,8 @@ export default {
           const polygon = drawPolygon(
             this.annotations[i].segmentation[0],
             this.raster.bounds.topLeft,
-            color
+            color,
+            this.annotations[i].id
           );
           this.annotationPolygons.push(polygon);
         }

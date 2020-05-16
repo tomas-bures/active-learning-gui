@@ -8,7 +8,8 @@ export interface ICoordinate {
 export function drawPolygon(
   vertices: Array<number>,
   start: ICoordinate,
-  color: paper.Color
+  color: paper.Color,
+  id: number
 ) {
   let polygon = new paper.Path();
   polygon.fillColor = color;
@@ -30,5 +31,7 @@ export function drawPolygon(
       second = false;
     }
   }
+  polygon.data.deleted = false;
+  polygon.data.id = id;
   return polygon;
 }
