@@ -1,6 +1,6 @@
 <template>
   <div>
-    <image-annotator :key="key" ref="test" />
+    <image-annotator :key="key" ref="annotator" />
     <v-tooltip top>
       <template v-slot:activator="{ on }">
         <v-btn @click="loadPrevious" icon v-on="on">
@@ -69,13 +69,13 @@ export default {
   },
   methods: {
     rotateLeft() {
-      this.$refs.test.rotateLeft();
+      this.$refs.annotator.rotateLeft();
     },
     rotateRight() {
-      this.$refs.test.rotateRight();
+      this.$refs.annotator.rotateRight();
     },
     recenter() {
-      this.$refs.test.recenter();
+      this.$refs.annotator.recenter();
     },
     loadPrevious() {
       this.load(false);
@@ -84,7 +84,7 @@ export default {
       this.load(true);
     },
     saveChanges() {
-      this.$refs.test.saveChanges();
+      this.$refs.annotator.saveChanges();
     },
     async load(next) {
       const index = next
