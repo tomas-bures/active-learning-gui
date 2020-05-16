@@ -31,15 +31,44 @@
             <v-checkbox v-model="descending" label="Descending"></v-checkbox>
           </v-col>
           <v-col cols="8">
-            <v-data-table
-              :headers="headers"
-              :items="tableData"
-              :items-per-page="tableDataLength"
-              dense
-              hide-default-footer
-              height="150"
-              @click:row="openAnnotatorThroughTableClick"
-            ></v-data-table>
+            <v-simple-table dense fixed-header height="150">
+              <template v-if="sortBy == 1">
+                <thead>
+                  <tr>
+                    <th>Image ID</th>
+                    <th>Annotations</th>
+                    <th>Average score</th>
+                    <th>Annotations area</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="item in tableData" :key="item.id">
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.annotation_count }}</td>
+                    <td>{{ item.average_score }}</td>
+                    <td>{{ item.annotations_area }}</td>
+                  </tr>
+                </tbody>
+              </template>
+              <template v-else>
+                <thead>
+                  <tr>
+                    <th>Image ID</th>
+                    <th>Annotation ID</th>
+                    <th>Annotation Area</th>
+                    <th>Annotation Score</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="item in tableData" :key="item.annotation_id">
+                    <th>{{ item.id }}</th>
+                    <th>{{ item.annotation_id }}</th>
+                    <th>{{ item.annotation_area }}</th>
+                    <th>{{ item.annotation_score }}</th>
+                  </tr>
+                </tbody>
+              </template>
+            </v-simple-table>
           </v-col>
         </v-row>
       </v-container>
@@ -116,8 +145,8 @@ export default {
             annotation_area: item.image.orderedAnnotation.area,
             annotation_score: item.image.orderedAnnotation.score
           };
+          data.push(dataItem);
         });
-        //data.push(dataItem);
       }
       return data;
     },
