@@ -7,7 +7,7 @@ export default new Vuex.Store({
   state: {
     categories: [],
     currentImage: null,
-    sortingCriteria: 1,
+    sortingCriteria: 2,
     descendingOrder: false,
     currentImageIndex: null,
   },
