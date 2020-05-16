@@ -140,7 +140,10 @@ async function getImagesFromAnnotationsOrderedByScoreDistance(
   }
   let images = [];
   for (let i = offset; i < offset + limit; i++) {
-    images.push(await database.images.get(orderedAnnotations[i].image_id));
+    let image = await database.images.get(orderedAnnotations[i].image_id);
+    //@ts-ignore
+    image.orderedAnnotation = orderedAnnotations[i];
+    images.push(image);
   }
   return images;
 }
@@ -159,7 +162,10 @@ async function getImagesFromOrderedAnnotations(
   );
   let images = [];
   for (let i = 0; i < annotations.length; i++) {
-    images.push(await database.images.get(annotations[i].image_id));
+    let image = await database.images.get(annotations[i].image_id);
+    //@ts-ignore
+    image.orderedAnnotation = annotations[i];
+    images.push(image);
   }
   return images;
 }

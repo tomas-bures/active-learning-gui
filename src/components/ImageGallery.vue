@@ -9,14 +9,7 @@
             :key="image.key"
             @click="openAnnotator(image, index)"
           >
-            <Picture
-              :size="size"
-              :source="image.url"
-              :id="image.image.id"
-              v-observe-visibility="
-                (isVisible, entry) => visibilityChanged(isVisible, entry, image)
-              "
-            />
+            <Picture :size="size" :source="image.url" :id="image.image.id" />
           </v-flex>
         </v-layout>
       </div>
@@ -45,7 +38,7 @@
               dense
               hide-default-footer
               height="150"
-              @click:row="test"
+              @click:row="openAnnotatorThroughTableClick"
             ></v-data-table>
           </v-col>
         </v-row>
@@ -101,19 +94,31 @@ export default {
   computed: {
     tableData: function() {
       let data = [];
-      this.images.forEach(item => {
-        let dataItem = {
-          id: item.image.id,
-          annotation_count: item.image.image_annotations.length,
-          average_score:
-            item.image.image_annotations.reduce(
-              (accumulator, current) => (accumulator += current.score),
-              0
-            ) / item.image.image_annotations.length,
-          annotations_area: item.image.annotationsArea
-        };
-        data.push(dataItem);
-      });
+      if (this.$store.state.sortingCriteria == 1) {
+        this.images.forEach(item => {
+          const dataItem = {
+            id: item.image.id,
+            annotation_count: item.image.image_annotations.length,
+            average_score:
+              item.image.image_annotations.reduce(
+                (accumulator, current) => (accumulator += current.score),
+                0
+              ) / item.image.image_annotations.length,
+            annotations_area: item.image.annotationsArea
+          };
+          data.push(dataItem);
+        });
+      } else {
+        this.images.forEach(item => {
+          const dataItem = {
+            id: item.image.id,
+            annotation_id: item.image.orderedAnnotation.id,
+            annotation_area: item.image.orderedAnnotation.area,
+            annotation_score: item.image.orderedAnnotation.score
+          };
+        });
+        //data.push(dataItem);
+      }
       return data;
     },
     tableDataLength: function() {
@@ -140,7 +145,7 @@ export default {
     this.loadFirstPage();
   },
   methods: {
-    test(event) {
+    openAnnotatorThroughTableClick(event) {
       const image = this.images.find(item => item.image.id == event.id);
       const index = this.images.findIndex(item => item.image.id == event.id);
       this.openAnnotator(image, index);
@@ -157,14 +162,6 @@ export default {
           source: img.url
         }
       });
-    },
-    visibilityChanged(isVisible, entry, image) {
-      this.visibleImages.set(image.image, isVisible);
-      let visible = [];
-      this.visibleImages.forEach((item, key) => {
-        if (item) visible.push(key);
-      });
-      return visible;
     },
     async loadFirstPage() {
       this.busy = true;
