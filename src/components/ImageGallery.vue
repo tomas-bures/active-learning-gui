@@ -9,7 +9,12 @@
             :key="image.key"
             @click="openAnnotator(image, index)"
           >
-            <Picture :size="size" :source="image.url" :id="image.image.id" />
+            <Picture
+              :size="size"
+              :source="image.url"
+              :id="image.image.id"
+              :class="'picture' + image.image.id"
+            />
           </v-flex>
         </v-layout>
       </div>
@@ -42,7 +47,13 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="item in tableData" :key="item.id">
+                  <tr
+                    v-for="item in tableData"
+                    :key="item.id"
+                    @click="$vuetify.goTo(`.picture${item.id}`)"
+                    @dblclick="openAnnotatorThroughTableClick"
+                    @mouseenter="setTableIndex"
+                  >
                     <td>{{ item.id }}</td>
                     <td>{{ item.annotation_count }}</td>
                     <td>{{ item.average_score }}</td>
@@ -60,7 +71,13 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="item in tableData" :key="item.annotation_id">
+                  <tr
+                    v-for="item in tableData"
+                    :key="item.annotation_id"
+                    @click="$vuetify.goTo(`.picture${item.id}`)"
+                    @dblclick="openAnnotatorThroughTableClick"
+                    @mouseenter="setTableIndex"
+                  >
                     <th>{{ item.id }}</th>
                     <th>{{ item.annotation_id }}</th>
                     <th>{{ item.annotation_area }}</th>
@@ -97,6 +114,7 @@ export default {
     pageSize: 20,
     tablePage: 1,
     overlay: false,
+    tableIndex: 0,
     headers: [
       {
         text: "ID",
@@ -174,10 +192,14 @@ export default {
     this.loadFirstPage();
   },
   methods: {
+    setTableIndex(event) {
+      this.tableIndex = event.target.rowIndex - 1;
+    },
     openAnnotatorThroughTableClick(event) {
-      const image = this.images.find(item => item.image.id == event.id);
-      const index = this.images.findIndex(item => item.image.id == event.id);
-      this.openAnnotator(image, index);
+      const image = this.images[this.tableIndex];
+      // const image = this.images.find(item => item.image.id == event.id);
+      // const index = this.images.findIndex(item => item.image.id == event.id);
+      this.openAnnotator(image, this.tableIndex);
     },
     async openAnnotator(img, index) {
       const categories = await database.categories.orderBy("id").toArray();

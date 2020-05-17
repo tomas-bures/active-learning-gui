@@ -1,6 +1,6 @@
 <template>
   <div class="picture">
-    <v-card hover outlined :max-width="size + 10" class="test">
+    <v-card hover outlined :max-width="size + 10">
       <v-img
         class="grey darken-4 mx-1 my-1"
         :src="source"

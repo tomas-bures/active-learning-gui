@@ -64,7 +64,7 @@ export default {
         database.licenses,
         async function() {
           fileContent.annotations.forEach(annotation => {
-            annotation.score = Math.random().toFixed(3);
+            //annotation.score = parseFloat(Math.random().toFixed(3));
             database.annotations.add(annotation);
           });
           fileContent.categories.forEach(category =>
