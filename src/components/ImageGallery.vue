@@ -197,8 +197,6 @@ export default {
     },
     openAnnotatorThroughTableClick(event) {
       const image = this.images[this.tableIndex];
-      // const image = this.images.find(item => item.image.id == event.id);
-      // const index = this.images.findIndex(item => item.image.id == event.id);
       this.openAnnotator(image, this.tableIndex);
     },
     async openAnnotator(img, index) {
