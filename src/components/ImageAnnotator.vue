@@ -142,8 +142,13 @@ export default {
         .where("image_id")
         .equals(image.id)
         .toArray();
+      const annotationsArea = annotations.reduce(
+        (acc, annotation) => acc + annotation.area,
+        0
+      );
       await database.images.update(image.id, {
-        image_annotations: annotations
+        image_annotations: annotations,
+        annotationsArea: annotationsArea
       });
       image = await database.images.get(this.$store.state.currentImage.id);
       this.$store.commit("setCurrentImage", image);
