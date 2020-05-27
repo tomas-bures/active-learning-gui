@@ -30,8 +30,8 @@
             <v-btn-toggle v-model="sortBy" mandatory>
               <v-btn>BY AREA</v-btn>
               <v-btn>BY TOTAL AREA</v-btn>
-              <v-btn>BY SCORE</v-btn>
-              <v-btn>BY SCORE</v-btn>
+              <v-btn :disabled="scoresDisabled">BY SCORE</v-btn>
+              <v-btn :disabled="scoresDisabled">BY SCORE DISTANCE</v-btn>
             </v-btn-toggle>
             <v-checkbox v-model="descending" label="Descending"></v-checkbox>
           </v-col>
@@ -73,7 +73,7 @@
                 <tbody>
                   <tr
                     v-for="item in tableData"
-                    :key="item.annotation_id"
+                    :key="item.key"
                     @click="$vuetify.goTo(`.picture${item.id}`)"
                     @dblclick="openAnnotatorThroughTableClick"
                     @mouseenter="setTableIndex"
@@ -115,31 +115,14 @@ export default {
     tablePage: 1,
     overlay: false,
     tableIndex: 0,
-    headers: [
-      {
-        text: "ID",
-        sortable: false,
-        value: "id"
-      },
-      {
-        text: "Annotations",
-        sortable: false,
-        value: "annotation_count"
-      },
-      {
-        text: "Average score",
-        sortable: false,
-        value: "average_score"
-      },
-      {
-        text: "Annotations area",
-        sortable: false,
-        value: "annotations_area"
-      }
-    ]
+    scoresDisabled: false,
+    pageLoaded: false
   }),
   computed: {
     tableData: function() {
+      if (!this.pageLoaded) {
+        return null;
+      }
       let data = [];
       if (this.$store.state.sortingCriteria == 1) {
         this.images.forEach(item => {
@@ -151,20 +134,26 @@ export default {
                 (accumulator, current) => (accumulator += current.score),
                 0
               ) / item.image.image_annotations.length,
-            annotations_area: item.image.annotationsArea
+            annotations_area: item.image.annotationsArea,
+            key: item.key
           };
           data.push(dataItem);
         });
       } else {
-        this.images.forEach(item => {
-          const dataItem = {
-            id: item.image.id,
-            annotation_id: item.image.orderedAnnotation.id,
-            annotation_area: item.image.orderedAnnotation.area,
-            annotation_score: item.image.orderedAnnotation.score
-          };
-          data.push(dataItem);
-        });
+        try {
+          this.images.forEach(item => {
+            const dataItem = {
+              id: item.image.id,
+              annotation_id: item.image.orderedAnnotation.id,
+              annotation_area: item.image.orderedAnnotation.area,
+              annotation_score: item.image.orderedAnnotation.score,
+              key: item.key
+            };
+            data.push(dataItem);
+          });
+        } catch (err) {
+          this.reloadImages();
+        }
       }
       return data;
     },
@@ -186,6 +175,18 @@ export default {
       set() {
         this.$store.commit("switchDescendingOrder");
       }
+    }
+  },
+  beforeCreate() {
+    const haveScores = JSON.parse(localStorage.getItem("haveScores"));
+    if (!haveScores && this.$store.state.sortingCriteria > 1) {
+      this.$store.commit("setSortingCriteria", 1);
+    }
+  },
+  created() {
+    const haveScores = JSON.parse(localStorage.getItem("haveScores"));
+    if (!haveScores) {
+      this.scoresDisabled = true;
     }
   },
   mounted() {
@@ -227,14 +228,29 @@ export default {
         let imageURL = await this.storageRef
           .child(this.folder + "/" + item.file_name)
           .getDownloadURL();
+        const uuid = this.create_UUID();
         let imageWithInfo = {
           image: item,
           url: imageURL,
-          key: Date.now()
+          key: uuid
         };
         this.images.push(imageWithInfo);
       }
       this.busy = false;
+      this.pageLoaded = true;
+    },
+    //Taken from https://www.w3resource.com/javascript-exercises/javascript-math-exercise-23.php
+    create_UUID() {
+      let dt = new Date().getTime();
+      let uuid = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+        /[xy]/g,
+        function(c) {
+          let r = (dt + Math.random() * 16) % 16 | 0;
+          dt = Math.floor(dt / 16);
+          return (c == "x" ? r : (r & 0x3) | 0x8).toString(16);
+        }
+      );
+      return uuid;
     },
     async loadMore() {
       if (this.page.length < this.pageSize) return;
@@ -252,10 +268,11 @@ export default {
         let imageURL = await this.storageRef
           .child(this.folder + "/" + item.file_name)
           .getDownloadURL();
+        const uuid = this.create_UUID();
         let imageWithInfo = {
           image: item,
           url: imageURL,
-          key: Date.now()
+          key: uuid
         };
         this.images.push(imageWithInfo);
       }

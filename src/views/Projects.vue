@@ -44,6 +44,15 @@ export default {
       let reader = new FileReader();
       reader.onload = () => {
         let fileContent = JSON.parse(reader.result);
+        let scoresFound = true;
+        for (let i = 0; i < fileContent.annotations.length; i++) {
+          const annotation = fileContent.annotations[i];
+          if (annotation.score == null) {
+            scoresFound = false;
+            break;
+          }
+        }
+        localStorage.setItem("haveScores", scoresFound);
         this.populateDatabase(fileContent);
       };
       reader.readAsText(file);
@@ -63,6 +72,7 @@ export default {
         database.images,
         database.licenses,
         async function() {
+          let haveScore = true;
           fileContent.annotations.forEach(annotation => {
             //annotation.score = parseFloat(Math.random().toFixed(3));
             database.annotations.add(annotation);
@@ -92,6 +102,7 @@ export default {
       alert("JSON file succesfully imported");
     },
     async exportJSON() {
+      this.loading = true;
       let databaseContent = new Object();
       const exclude = (key, value) => {
         if (key != "image_annotations" && key != "annotationsArea") {
@@ -107,7 +118,7 @@ export default {
       const blob = new Blob([stringifiedDatabase], { type: "text/plain" });
       const e = document.createEvent("MouseEvents"),
         a = document.createElement("a");
-      a.download = "test.json";
+      a.download = "exported.json";
       a.href = window.URL.createObjectURL(blob);
       a.dataset.downloadurl = ["text/json", a.download, a.href].join(":");
       e.initEvent(
@@ -128,6 +139,7 @@ export default {
         null
       );
       a.dispatchEvent(e);
+      this.loading = false;
     }
   }
 };
