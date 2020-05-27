@@ -5,13 +5,6 @@
       <v-toolbar-title class="text-uppercase">
         <span>Active learning gui</span>
       </v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-btn icon>
-        <v-icon class="white--text">person</v-icon>
-      </v-btn>
-      <v-btn icon>
-        <v-icon class="white--text">exit_to_app</v-icon>
-      </v-btn>
     </v-app-bar>
     <v-navigation-drawer v-model="drawer" app clipped dark>
       <v-list>
@@ -33,8 +26,8 @@ export default {
   data: () => ({
     drawer: true,
     links: [
-      { icon: "dashboard", text: "Dashboard", route: "/" },
-      { icon: "folder", text: "My Projects", route: "/projects" },
+      { icon: "dashboard", text: "About", route: "/" },
+      { icon: "folder", text: "Import / Export", route: "/projects" },
       { icon: "picture_in_picture", text: "Images", route: "/dataset" }
     ]
   })
