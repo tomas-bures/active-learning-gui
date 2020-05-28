@@ -15,8 +15,8 @@ export default new Vuex.Store({
     setCategories(state, categories) {
       state.categories = categories;
     },
-    setCurrentImage(state, annotations) {
-      state.currentImage = annotations;
+    setCurrentImage(state, image) {
+      state.currentImage = image;
     },
     setSortingCriteria(state, criteria) {
       state.sortingCriteria = criteria;
