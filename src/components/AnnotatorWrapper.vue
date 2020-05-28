@@ -21,7 +21,7 @@
       <template v-slot:activator="{ on }">
         <v-btn @click="recenter" class="mx-2" v-on="on">Recenter</v-btn>
       </template>
-      <span>Recenter</span>
+      <span>Recenter and return to last saved state</span>
     </v-tooltip>
     <v-tooltip top>
       <template v-slot:activator="{ on }">
@@ -39,6 +39,29 @@
       </template>
       <span>Load next</span>
     </v-tooltip>
+    <v-tooltip top>
+      <template v-slot:activator="{ on }">
+        <v-btn @click="dialog = true" v-on="on" icon>
+          <v-icon>delete</v-icon>
+        </v-btn>
+      </template>
+      <span>Delete image and annotations from dataset</span>
+    </v-tooltip>
+
+    <v-dialog v-model="dialog" max-width="290">
+      <v-card>
+        <v-card-title class="headline">Delete image</v-card-title>
+        <v-card-text>
+          Are you sure you want to delete current image and its
+          annotations?
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="green darken-1" text @click="deleteImage">OK</v-btn>
+          <v-btn color="green darken-1" text @click="dialog = false">Cancel</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <v-tooltip top>
       <template v-slot:activator="{ on }">
         <v-btn @click="saveChanges" v-on="on" icon>
@@ -60,7 +83,8 @@ export default {
     ImageAnnotator
   },
   data: () => ({
-    storageRef: FirebaseStorage.ref()
+    storageRef: FirebaseStorage.ref(),
+    dialog: false
   }),
   computed: {
     key: function() {
@@ -82,6 +106,11 @@ export default {
     },
     loadNext() {
       this.load(true);
+    },
+    deleteImage() {
+      this.dialog = false;
+      this.$refs.annotator.deleteImage();
+      this.loadNext();
     },
     saveChanges() {
       this.$refs.annotator.saveChanges();

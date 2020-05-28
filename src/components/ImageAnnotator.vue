@@ -120,6 +120,13 @@ export default {
       const polygon = this.annotationPolygons[this.tableIndex];
       selectItem(polygon);
     },
+    async deleteImage() {
+      for (let i = 0; i < this.annotations.length; i++) {
+        const annotation = this.annotations[i];
+        database.annotations.delete(annotation.id);
+      }
+      await database.images.delete(this.$store.state.currentImage.id);
+    },
     async saveChanges() {
       for (let i = 0; i < this.annotationsToDelete.length; i++) {
         await database.annotations.delete(this.annotationsToDelete[i]);
