@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "core-js": "^3.6.5",
-    "dexie": "^2.0.4",
+    "dexie": "^3.2.2",
     "firebase": "^7.14.2",
     "paper": "^0.12.4",
     "register-service-worker": "^1.7.1",
